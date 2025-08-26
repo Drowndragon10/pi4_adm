@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pi4/loginpage.dart';
+import 'admin/players.dart';
+import 'admin/add_jogador_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,23 +31,70 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Lista de opções do menu
-    final List<_MenuOption> options = [
-      _MenuOption('Utilizadores', Icons.person, () {}),
-      _MenuOption('Jogadores', Icons.sports_soccer, () {}),
+    // Grupos de opções
+    final List<_MenuOption> mainOptions = [
+      _MenuOption(
+        'Jogadores',
+        Icons.sports_soccer,
+        () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const JogadoresPage()),
+          );
+        },
+      ),
       _MenuOption('Jogos', Icons.sports, () {}),
-      _MenuOption('Tarefas', Icons.description, () {}),
-      _MenuOption('Adicionar Jogador', Icons.sports_soccer_outlined, () {}),
+    ];
+    final List<_MenuOption> addOptions = [
+      _MenuOption('Adicionar Jogador', Icons.sports_soccer_outlined, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AddAtletaPage()),
+        );
+      }),
       _MenuOption('Adicionar Jogo', Icons.sports_outlined, () {}),
       _MenuOption('Atribuir Tarefa', Icons.description_outlined, () {}),
-      _MenuOption('Definições', Icons.settings, () {}),
     ];
+    final _MenuOption settingsOption =
+        _MenuOption('Definições', Icons.settings, () {});
+
+    Widget buildButton(_MenuOption option) {
+      return Material(
+        color: const Color(0xFF2C2C2C),
+        borderRadius: BorderRadius.circular(12),
+        elevation: 8,
+        // ignore: deprecated_member_use
+        shadowColor: Colors.black.withOpacity(0.5),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: option.onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: Row(
+              children: [
+                Icon(option.icon, color: const Color(0xFFFFD700), size: 30),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    option.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF232323),
@@ -55,7 +104,7 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 60),
               const Center(
                 child: Text(
                   'Bem-vindo',
@@ -66,43 +115,21 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 60),
+              // Grupo principal
+              ...mainOptions.map((option) => Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: buildButton(option),
+                  )),
               const SizedBox(height: 32),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: options.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final option = options[index];
-                    return Material(
-                      color: const Color(0xFF2C2C2C),
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: option.onTap,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                          child: Row(
-                            children: [
-                              Icon(option.icon, color: Color(0xFFFFD700), size: 32),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  option.title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              // Grupo adicionar
+              ...addOptions.map((option) => Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: buildButton(option),
+                  )),
+              const Spacer(),
+              // Definições no fundo
+              buildButton(settingsOption),
             ],
           ),
         ),
