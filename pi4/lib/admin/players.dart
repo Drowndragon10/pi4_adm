@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../autenticacao/auth_service.dart';
 
+import 'playerdetailspage.dart';
+
 class JogadoresPage extends StatefulWidget {
   const JogadoresPage({super.key});
 
@@ -163,6 +165,189 @@ class _JogadoresPageState extends State<JogadoresPage> {
     });
   }
 
+  void _avaliarAtleta(String idAthlete, int currentRating) {
+    if (idAthlete == null || idAthlete == 'null' || idAthlete.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ID do atleta inválido!')),
+      );
+      return;
+    }
+    int rating = currentRating;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF2C2C2C), // Fundo escuro
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(16.0), // Bordas arredondadas
+              ),
+              title: const Text(
+                'Avaliar',
+                style: TextStyle(
+                  color: Colors.white, // Texto branco
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Classificação (1-5):',
+                    style: TextStyle(
+                      color: Colors.white, // Texto branco
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          index < rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 35,
+                        ),
+                        onPressed: () {
+                          setDialogState(() {
+                            rating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                    final token = await AuthService().getToken();
+                    final config = {
+                      'Authorization': 'Bearer $token',
+                      'Content-Type': 'application/json',
+                    };
+
+                    try {
+                      final response = await http.put(
+                        Uri.parse(
+                            'https://pi4-3soq.onrender.com/athletes/$idAthlete'),
+                        headers: config,
+                        body: json.encode({
+                          'rating': rating,
+                        }),
+                      );
+
+                      print('Status: ${response.statusCode}');
+                      print('Body: ${response.body}');
+
+                      if (response.statusCode == 200) {
+                        if (mounted) {
+                          Navigator.of(context).pop(); // Fechar o pop-up
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Avaliação salva com sucesso!')),
+                          );
+
+                          setState(() {
+                            atletas = atletas.map((atleta) {
+                              if (atleta['idAthlete'] == int.parse(idAthlete)) {
+                                atleta['rating'] = rating;
+                              }
+                              return atleta;
+                            }).toList();
+                          });
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Erro ao salvar a avaliação.')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Erro de rede.')),
+                      );
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.yellow, // Fundo amarelo
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: const Text(
+                      'Guardar Avaliação',
+                      style: TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 0.7), // Texto preto
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fechar o pop-up
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.grey, // Botão cinza
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _viewDetails(dynamic atleta) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlayerDetailsPage(
+          atleta: atleta,
+          onAvaliar: (id, rating) => _avaliarAtleta(id, rating),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$label ',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -300,7 +485,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                             ),
                             trailing: GestureDetector(
                               onTap: () {
-                                // Ver mais detalhes
+                                _viewDetails(atleta);
                               },
                               child: const Text(
                                 'Ver mais',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pi4/loginpage.dart';
 import 'admin/players.dart';
 import 'admin/add_jogador_page.dart';
+import 'selecao_escalao_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,7 +49,12 @@ class DashboardPage extends StatelessWidget {
           );
         },
       ),
-      _MenuOption('Jogos', Icons.sports, () {}),
+      _MenuOption('Jogos', Icons.sports, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EscalaoPage()),
+        );
+      }),
     ];
     final List<_MenuOption> addOptions = [
       _MenuOption('Adicionar Jogador', Icons.sports_soccer_outlined, () {
