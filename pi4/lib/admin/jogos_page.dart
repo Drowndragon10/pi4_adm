@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'autenticacao/auth_service.dart';
-import 'autenticacao/jwt_decode.dart';
+import '../autenticacao/auth_service.dart';
+import '../autenticacao/jwt_decode.dart';
 
 class JogosPage extends StatefulWidget {
   final int idCategoriaEtaria;
@@ -279,6 +279,7 @@ class _JogosPageState extends State<JogosPage> {
       appBar: AppBar(
         title: Text('Jogos - ${widget.categoriaNome}'),
         backgroundColor: const Color(0xFF000000),
+        automaticallyImplyLeading: false, // <-- remove a seta de voltar
       ),
       backgroundColor: const Color(0xFF2C2C2C),
       body: Column(

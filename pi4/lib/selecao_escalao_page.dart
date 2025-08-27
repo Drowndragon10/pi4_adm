@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'autenticacao/auth_service.dart';
 import 'autenticacao/jwt_decode.dart';
-import 'jogos_page.dart';
+import 'admin/jogos_page.dart';
 
 class EscalaoPage extends StatefulWidget {
   const EscalaoPage({super.key});

@@ -3,6 +3,8 @@ import 'package:pi4/loginpage.dart';
 import 'admin/players.dart';
 import 'admin/add_jogador_page.dart';
 import 'selecao_escalao_page.dart';
+import 'admin/add_jogos_page.dart';
+import 'definicoes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,11 +65,21 @@ class DashboardPage extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const AddAtletaPage()),
         );
       }),
-      _MenuOption('Adicionar Jogo', Icons.sports_outlined, () {}),
+      _MenuOption('Adicionar Jogo', Icons.sports_outlined, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AddJogoPage()),
+        );
+      }),
       _MenuOption('Atribuir Tarefa', Icons.description_outlined, () {}),
     ];
     final _MenuOption settingsOption =
-        _MenuOption('Definições', Icons.settings, () {});
+        _MenuOption('Definições', Icons.settings, () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DefinicoesPage()),
+          );
+        });
 
     Widget buildButton(_MenuOption option) {
       return Material(
