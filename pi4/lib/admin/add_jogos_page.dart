@@ -87,72 +87,74 @@ class _AddJogoPageState extends State<AddJogoPage> {
     final shouldCreate = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF121212), // Fundo escuro
+         return AlertDialog(
+          backgroundColor: const Color(0xFF232323),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Bordas arredondadas
+            borderRadius: BorderRadius.circular(16),
           ),
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.help_outline, // Ícone de "?"
-                color: Colors.orange,
-                size: 50, // Ícone maior
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Tens a certeza que desejas criar este jogo?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ],
+          titlePadding:
+              const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 0),
+          contentPadding:
+              const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 8),
+          title: const Text(
+            'Vai criar um novo jogo,\ntem a certeza?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
           actionsAlignment: MainAxisAlignment.center,
-          actions: <Widget>[
-            // Botão "Sim, criar"
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFD700),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sim',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Sim, criar!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD9D9D9),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Não',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 8), // Espaço entre os botões
-
-            // Botão "Cancelar"
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              ],
             ),
           ],
         );

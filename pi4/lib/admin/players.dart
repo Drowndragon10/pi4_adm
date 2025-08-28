@@ -18,6 +18,8 @@ class _JogadoresPageState extends State<JogadoresPage> {
   List<dynamic> posicoes = [];
   bool isLoading = false;
   String searchQuery = '';
+  int currentPage = 1;
+  final int itemsPerPage = 5;
 
   @override
   void initState() {
@@ -411,6 +413,15 @@ class _JogadoresPageState extends State<JogadoresPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Paginação
+    final int totalPages = (filteredAtletas.length / itemsPerPage).ceil();
+    final int startIndex = (currentPage - 1) * itemsPerPage;
+    final int endIndex = (startIndex + itemsPerPage) > filteredAtletas.length
+        ? filteredAtletas.length
+        : (startIndex + itemsPerPage);
+    final List<dynamic> atletasPagina =
+        filteredAtletas.sublist(startIndex, endIndex);
+
     return Scaffold(
       backgroundColor: const Color(0xFF232323),
       body: SafeArea(
@@ -437,7 +448,6 @@ class _JogadoresPageState extends State<JogadoresPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Row(
                 children: [
-                  // Botão Filtros (aqui só visual, podes abrir um modal se quiseres)
                   ElevatedButton(
                     onPressed: _showFiltroPosicaoDialog,
                     style: ElevatedButton.styleFrom(
@@ -459,7 +469,6 @@ class _JogadoresPageState extends State<JogadoresPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Campo pesquisa
                   Expanded(
                     child: Container(
                       height: 40,
@@ -478,7 +487,13 @@ class _JogadoresPageState extends State<JogadoresPage> {
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 10),
                         ),
-                        onChanged: _searchAtletas,
+                        onChanged: (value) {
+                          _searchAtletas(value);
+                          setState(() {
+                            currentPage =
+                                1; // Volta sempre à primeira página ao pesquisar
+                          });
+                        },
                       ),
                     ),
                   ),
@@ -491,9 +506,9 @@ class _JogadoresPageState extends State<JogadoresPage> {
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      itemCount: filteredAtletas.length,
+                      itemCount: atletasPagina.length,
                       itemBuilder: (context, index) {
-                        final atleta = filteredAtletas[index];
+                        final atleta = atletasPagina[index];
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
@@ -553,12 +568,23 @@ class _JogadoresPageState extends State<JogadoresPage> {
                       },
                     ),
             ),
-            // Paginação (exemplo visual, implementa a lógica conforme precisares)
+            // Paginação
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  IconButton(
+                    icon:
+                        const Icon(Icons.arrow_left, color: Color(0xFFFFD700)),
+                    onPressed: currentPage > 1
+                        ? () {
+                            setState(() {
+                              currentPage--;
+                            });
+                          }
+                        : null,
+                  ),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -566,22 +592,25 @@ class _JogadoresPageState extends State<JogadoresPage> {
                       color: const Color(0xFF303030),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '1',
-                      style: TextStyle(
+                    child: Text(
+                      '$currentPage / $totalPages',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   IconButton(
                     icon:
                         const Icon(Icons.arrow_right, color: Color(0xFFFFD700)),
-                    onPressed: () {
-                      // Próxima página
-                    },
+                    onPressed: currentPage < totalPages
+                        ? () {
+                            setState(() {
+                              currentPage++;
+                            });
+                          }
+                        : null,
                   ),
                 ],
               ),
