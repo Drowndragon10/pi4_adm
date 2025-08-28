@@ -16,6 +16,8 @@ class _EscalaoPageState extends State<EscalaoPage> {
   List<dynamic> categorias = [];
   bool isLoadingCategorias = true;
   String? userRole;
+  String searchQuery = '';
+  List<dynamic> filteredCategorias = [];
 
   @override
   void initState() {
@@ -39,6 +41,16 @@ class _EscalaoPageState extends State<EscalaoPage> {
       _loadCategorias();
       // ignore: empty_catches
     } catch (e) {}
+  }
+
+  void _searchCategorias(String query) {
+    setState(() {
+      searchQuery = query;
+      filteredCategorias = categorias.where((categoria) {
+        final nome = (categoria['name'] ?? '').toLowerCase();
+        return nome.contains(query.toLowerCase());
+      }).toList();
+    });
   }
 
   // Função para buscar as categorias etárias da API
@@ -108,16 +120,18 @@ class _EscalaoPageState extends State<EscalaoPage> {
                   color: const Color(0xFF2C2C2C),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const TextField(
-                  enabled: false,
-                  decoration: InputDecoration(
+                child: TextField(
+                  decoration: const InputDecoration(
                     hintText: 'Pesquisar',
                     hintStyle: TextStyle(color: Colors.white54),
                     border: InputBorder.none,
                     prefixIcon: Icon(Icons.search, color: Colors.white54),
                     contentPadding: EdgeInsets.symmetric(vertical: 10),
                   ),
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: (value) {
+                    _searchCategorias(value);
+                  },
                 ),
               ),
             ),
@@ -138,11 +152,16 @@ class _EscalaoPageState extends State<EscalaoPage> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: categorias.length,
+                          itemCount: (searchQuery.isEmpty
+                              ? categorias.length
+                              : filteredCategorias.length),
                           itemBuilder: (context, index) {
-                            final categoria = categorias[index]['name'];
+                            final lista = searchQuery.isEmpty
+                                ? categorias
+                                : filteredCategorias;
+                            final categoria = lista[index]['name'];
                             final idCategoriaEtaria =
-                                categorias[index]['idAgeCategory'];
+                                lista[index]['idAgeCategory'];
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -169,7 +188,7 @@ class _EscalaoPageState extends State<EscalaoPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => JogosPage(
-                                          idCategoriaEtaria: idCategoriaEtaria,
+                                          idAgeCategory: idCategoriaEtaria,
                                           categoriaNome: categoria,
                                         ),
                                       ),

@@ -90,7 +90,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: const Color(0xFFE5E5E5),
+          backgroundColor: const Color(0xFF232323),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
@@ -105,7 +105,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(Icons.close,
-                          size: 32, color: Colors.black54),
+                          size: 32, color: Colors.white70),
                     ),
                   ],
                 ),
@@ -115,36 +115,63 @@ class _JogadoresPageState extends State<JogadoresPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
                 ...posicoes.map<Widget>((pos) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                      _filtrarPorPosicao(pos['name']);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _filtrarPorPosicao(pos['name']);
+                      },
                       child: Text(
                         pos['name'],
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.black87,
+                          fontSize: 18,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   );
                 }).toList(),
                 const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _filtrarPorPosicao(null); // Limpa filtro
-                  },
-                  child: const Text('Limpar filtro'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _filtrarPorPosicao(null); // Limpa filtro
+                    },
+                    child: const Text(
+                      'Limpar filtro',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -154,13 +181,28 @@ class _JogadoresPageState extends State<JogadoresPage> {
     );
   }
 
-  void _filtrarPorPosicao(String? posicao) {
+  void _filtrarPorPosicao(String? nomePosicao) {
     setState(() {
-      if (posicao == null) {
+      if (nomePosicao == null) {
         filteredAtletas = atletas;
       } else {
-        filteredAtletas =
-            atletas.where((a) => (a['position'] ?? '') == posicao).toList();
+        filteredAtletas = atletas.where((a) {
+          // Se a posição do atleta for um mapa, pega o nome
+          String? posName;
+          if (a['position'] is Map) {
+            posName = a['position']['name'];
+          } else if (a['position'] is String) {
+            posName = a['position'];
+          } else if (a['idPosition'] != null) {
+            // Se só tens o id, tenta buscar o nome na lista de posições
+            final pos = posicoes.firstWhere(
+              (p) => p['id'].toString() == a['idPosition'].toString(),
+              orElse: () => null,
+            );
+            posName = pos != null ? pos['name'] : null;
+          }
+          return posName == nomePosicao;
+        }).toList();
       }
     });
   }
@@ -487,7 +529,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                               ],
                             ),
                             subtitle: Text(
-                              atleta['position'] ?? '',
+                              _getPositionName(atleta['idPosition']),
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -560,5 +602,14 @@ class _JogadoresPageState extends State<JogadoresPage> {
         ),
       ),
     );
+  }
+
+  String _getPositionName(dynamic idPosition) {
+    if (idPosition == null) return '';
+    final pos = posicoes.firstWhere(
+      (p) => p['id'].toString() == idPosition.toString(),
+      orElse: () => null,
+    );
+    return pos != null ? (pos['name'] ?? '') : '';
   }
 }

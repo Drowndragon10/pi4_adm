@@ -6,12 +6,12 @@ import '../autenticacao/auth_service.dart';
 import '../autenticacao/jwt_decode.dart';
 
 class JogosPage extends StatefulWidget {
-  final int idCategoriaEtaria;
+  final int idAgeCategory;
   final String categoriaNome;
 
   const JogosPage({
     super.key,
-    required this.idCategoriaEtaria,
+    required this.idAgeCategory,
     required this.categoriaNome,
   });
 
@@ -52,13 +52,26 @@ class _JogosPageState extends State<JogosPage> {
     final config = {'Authorization': 'Bearer $token'};
 
     final String url =
-        'https://pi4-backend-r17y.onrender.com/jogos/categoria/${widget.idCategoriaEtaria}';
+        'https://pi4-3soq.onrender.com/matches/category/${widget.idAgeCategory}';
 
     try {
       final response = await http.get(Uri.parse(url), headers: config);
 
+      print('DEBUG status: ${response.statusCode}');
+      print('DEBUG body: ${response.body}');
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
+        // DEBUG extra: mostra as equipas de cada jogo
+        for (var jogo in data) {
+          print('JOGO ID: ${jogo['idMatch']}');
+          print('TEAMS: ${jogo['teams']}');
+          for (var team in (jogo['teams'] ?? [])) {
+            print('  role: ${team['role']} | teamName: ${team['teamName']}');
+          }
+        }
+
         setState(() {
           jogos = data;
           isLoadingJogos = false;
@@ -67,27 +80,29 @@ class _JogosPageState extends State<JogosPage> {
         setState(() {
           isLoadingJogos = false;
         });
+        print('DEBUG erro ao carregar jogos: ${response.statusCode}');
       }
     } catch (e) {
       setState(() {
         isLoadingJogos = false;
       });
+      print('DEBUG exceção ao carregar jogos: $e');
     }
   }
 
-  Future<void> _deleteJogo(int idJogo) async {
+  Future<void> _deleteJogo(int idMatch) async {
     final token = await AuthService().getToken();
     final config = {'Authorization': 'Bearer $token'};
 
     try {
       final response = await http.delete(
-        Uri.parse('https://pi4-backend-r17y.onrender.com/jogos/$idJogo'),
+        Uri.parse('https://pi4-3soq.onrender.com/matches/$idMatch'),
         headers: config,
       );
 
       if (response.statusCode == 200) {
         setState(() {
-          jogos.removeWhere((jogo) => jogo['idJogo'] == idJogo);
+          jogos.removeWhere((jogo) => jogo['idMatch'] == idMatch);
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Jogo eliminado com sucesso!')),
@@ -107,32 +122,32 @@ class _JogosPageState extends State<JogosPage> {
   }
 
   void _showGameDetails(dynamic jogo) {
-    final equipaCasa = jogo['equipas'].firstWhere(
-      (e) => e['papel'] == 'casa',
-      orElse: () => {'nomeEquipa': 'N/A'},
-    )['nomeEquipa'];
+    final equipaCasa = jogo['teams'].firstWhere(
+      (e) => e['role'] == 'casa',
+      orElse: () => {'teamName': 'N/A'},
+    )['teamName'];
 
-    final equipaVisitante = jogo['equipas'].firstWhere(
-      (e) => e['papel'] == 'visitante',
-      orElse: () => {'nomeEquipa': 'N/A'},
-    )['nomeEquipa'];
+    final equipaVisitante = jogo['teams'].firstWhere(
+      (e) => e['role'] == 'visitante',
+      orElse: () => {'teamName': 'N/A'},
+    )['teamName'];
 
-    final dataJogo = jogo['dataJogo'] != null
-        ? DateTime.parse(jogo['dataJogo'])
+    final dataJogo = jogo['matchDate'] != null
+        ? DateTime.parse(jogo['matchDate'])
         : DateTime.now();
     final dataFormatada = DateFormat('dd/MM/yyyy').format(dataJogo);
     final horaFormatada = DateFormat('HH:mm').format(dataJogo);
 
-    final concelho = jogo['concelho'] ?? 'N/A';
-    final distrito = jogo['distrito'] ?? 'N/A';
+    final concelho = jogo['county'] ?? 'N/A';
+    final distrito = jogo['district'] ?? 'N/A';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: const Color(0xFF2C2C2C), // Fundo escuro
+          backgroundColor: const Color(0xFF2C2C2C),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Bordas arredondadas
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -146,7 +161,7 @@ class _JogosPageState extends State<JogosPage> {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -166,7 +181,7 @@ class _JogosPageState extends State<JogosPage> {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -175,15 +190,17 @@ class _JogosPageState extends State<JogosPage> {
                   'Concelho: $concelho',
                   style: const TextStyle(
                     color: Colors.white70,
+                    fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 // Distrito
                 Text(
                   'Distrito: $distrito',
                   style: const TextStyle(
                     color: Colors.white70,
+                    fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
@@ -193,26 +210,35 @@ class _JogosPageState extends State<JogosPage> {
                   'Data: $dataFormatada',
                   style: const TextStyle(
                     color: Colors.white,
+                    fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 // Hora
                 Text(
-                  'Hora: $horaFormatada',
+                  'hora: $horaFormatada',
                   style: const TextStyle(
                     color: Colors.white,
+                    fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 16),
-                // Botões
-                if (userRole == 'Admin') ...[
+                const SizedBox(height: 20),
+                // Botão Eliminar (apenas para admin)
+                if (userRole == 'Admin')
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Botão Eliminar
-                      TextButton.icon(
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         onPressed: () async {
                           final confirm = await showDialog<bool>(
                             context: context,
@@ -247,24 +273,21 @@ class _JogosPageState extends State<JogosPage> {
                           );
 
                           if (confirm == true) {
-                            await _deleteJogo(jogo['idJogo']);
+                            await _deleteJogo(jogo['idMatch']);
                             Navigator.of(context).pop(); // Fechar popup
                           }
                         },
-                        icon: const Icon(
-                          Icons.delete, // Ícone de lixeira
-                          color: Colors.red,
-                        ),
-                        label: const Text(
+                        child: const Text(
                           'Eliminar',
                           style: TextStyle(
-                            color: Colors.red,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ],
                   ),
-                ],
               ],
             ),
           ),
@@ -276,71 +299,103 @@ class _JogosPageState extends State<JogosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Jogos - ${widget.categoriaNome}'),
-        backgroundColor: const Color(0xFF000000),
-        automaticallyImplyLeading: false, // <-- remove a seta de voltar
-      ),
-      backgroundColor: const Color(0xFF2C2C2C),
-      body: Column(
-        children: [
-          const SizedBox(height: 16),
-          // Lista de jogos
-          Expanded(
-              child: isLoadingJogos
-                  ? const Center(child: CircularProgressIndicator())
-                  : jogos.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Sem jogos disponíveis.',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: jogos.length,
-                          itemBuilder: (context, index) {
-                            final jogo = jogos[index];
-                            final String equipaCasa =
-                                jogo['equipas'][0]['nomeEquipa'];
-                            final String equipaVisitante =
-                                jogo['equipas'][1]['nomeEquipa'];
-                            final DateTime dataJogo =
-                                DateTime.parse(jogo['dataJogo']);
-                            final String dataFormatada =
-                                DateFormat('dd/MM/yyyy').format(dataJogo);
+      backgroundColor: const Color(0xFF232323),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Container(
+              color: const Color(0xFF303030),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'Jogos',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Lista de jogos
+            Expanded(
+                child: isLoadingJogos
+                    ? const Center(child: CircularProgressIndicator())
+                    : jogos.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Sem jogos disponíveis.',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: jogos.length,
+                            itemBuilder: (context, index) {
+                              final jogo = jogos[index];
+                              final equipaCasa =
+                                  (jogo['teams'] as List).firstWhere(
+                                (e) => e['role'] == 'casa',
+                                orElse: () => {'teamName': 'N/A'},
+                              )['teamName'];
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 16.0),
-                              color: const Color(0xFF121212),
-                              child: ListTile(
-                                title: Text(
-                                  '$equipaCasa vs $equipaVisitante',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 4.0, horizontal: 8.0),
-                                  child: Text(
-                                    dataFormatada,
+                              final equipaVisitante =
+                                  (jogo['teams'] as List).firstWhere(
+                                (e) => e['role'] == 'visitante',
+                                orElse: () => {'teamName': 'N/A'},
+                              )['teamName'];
+                              final DateTime dataJogo =
+                                  DateTime.parse(jogo['matchDate']);
+                              final String dataFormatada =
+                                  DateFormat('dd/MM/yyyy').format(dataJogo);
+
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 16.0),
+                                color: const Color(0xFF121212),
+                                child: ListTile(
+                                  title: Text(
+                                    '$equipaCasa vs $equipaVisitante',
                                     style: const TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  trailing: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 4.0, horizontal: 8.0),
+                                    child: Text(
+                                      dataFormatada,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    // Chama a função para mostrar detalhes do jogo
+                                    _showGameDetails(jogo);
+                                  },
                                 ),
-                                onTap: () {
-                                  // Chama a função para mostrar detalhes do jogo
-                                  _showGameDetails(jogo);
-                                },
-                              ),
-                            );
-                          },
-                        )),
-        ],
+                              );
+                            },
+                          )),
+
+            Container(
+              width: double.infinity,
+              color: const Color(0xFF2C2C2C),
+              child: IconButton(
+                icon:
+                    const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
+                onPressed: () {
+                  Navigator.pop(context); // Ou navega para DashboardPage
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

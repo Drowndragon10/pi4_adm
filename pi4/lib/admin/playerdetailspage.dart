@@ -135,14 +135,13 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
-            _buildDetailRow('Posição:', widget.atleta['position'] ?? "N/A"),
-            _buildDetailRow('Clube:', widget.atleta['team'] ?? "N/A"),
+            _buildDetailRow('Posição:', widget.atleta['position']?['name'] ?? "N/A"),
+            _buildDetailRow('Clube:', widget.atleta['team']?['name'] ?? "N/A"),
             _buildDetailRow(
                 'Nacionalidade:', widget.atleta['nationality'] ?? "N/A"),
             _buildDetailRow(
                 'Naturalidade:', widget.atleta['birthplace'] ?? "N/A"),
-            _buildDetailRow(
-                'Encarregado:', widget.atleta['guardian']?['name'] ?? "N/A"),
+            _buildDetailRow('Encarregado:', widget.atleta['guardian']?['name'] ?? "N/A"),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

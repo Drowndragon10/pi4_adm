@@ -58,6 +58,32 @@ class _AddJogoPageState extends State<AddJogoPage> {
       return;
     }
 
+    // Validação: só permitir equipas do mesmo escalão
+    final equipaCasaObj = equipas.firstWhere(
+      (e) => e['idTeam'].toString() == selectedEquipaCasa,
+      orElse: () => null,
+    );
+    final equipaVisitanteObj = equipas.firstWhere(
+      (e) => e['idTeam'].toString() == selectedEquipaVisitante,
+      orElse: () => null,
+    );
+
+    if (equipaCasaObj == null || equipaVisitanteObj == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione ambas as equipas!')),
+      );
+      return;
+    }
+
+    if (equipaCasaObj['ageCategory']?['idAgeCategory'] !=
+        equipaVisitanteObj['ageCategory']?['idAgeCategory']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('As equipas têm de ser do mesmo escalão!')),
+      );
+      return;
+    }
+
     final shouldCreate = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -143,22 +169,29 @@ class _AddJogoPageState extends State<AddJogoPage> {
       isLoading = true;
     });
 
+    final jogoPayload = {
+      'county': concelho,
+      'district': distrito,
+      'matchDate': DateFormat('yyyy-MM-ddTHH:mm:ss').format(dataJogo!),
+      'teams': [
+        {'idTeam': selectedEquipaCasa, 'role': 'casa'},
+        {'idTeam': selectedEquipaVisitante, 'role': 'visitante'},
+      ],
+    };
+
+    print('DEBUG payload enviado: ${json.encode(jogoPayload)}');
+
     final response = await http.post(
       Uri.parse('https://pi4-3soq.onrender.com/matches'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: json.encode({
-        'county': concelho,
-        'district': distrito,
-        'matchDate': DateFormat('yyyy-MM-ddTHH:mm:ss').format(dataJogo!),
-        'teams': [
-          {'idTeam': selectedEquipaCasa, 'role': 'casa'},
-          {'idTeam': selectedEquipaVisitante, 'role': 'visitante'},
-        ],
-      }),
+      body: json.encode(jogoPayload),
     );
+
+    print('DEBUG status: ${response.statusCode}');
+    print('DEBUG body: ${response.body}');
 
     setState(() {
       isLoading = false;
@@ -274,22 +307,33 @@ class _AddJogoPageState extends State<AddJogoPage> {
                     DropdownButtonFormField<String>(
                       value: selectedEquipaCasa,
                       decoration: const InputDecoration(
-                        hintText: 'Selecione a Equipa da Casa',
                         filled: true,
-                        fillColor: Color(0xFFE6E6E6),
-                        hintStyle: TextStyle(color: Colors.black),
+                        fillColor:
+                            Color.fromARGB(255, 134, 133, 133), // fundo branco
                         border: OutlineInputBorder(
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
                       ),
-                      dropdownColor: const Color(0xFF2C2C2C),
-                      style: const TextStyle(color: Colors.black),
+                      hint: const Text(
+                        'Selecione a Equipa da Casa',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      dropdownColor:
+                          const Color(0xFF2C2C2C), // menu suspenso escuro
+                      style: const TextStyle(
+                          color: Colors.black), // texto preto no campo
+                      iconEnabledColor: Colors.black, // seta preta
+                      iconDisabledColor: Colors.black, // seta preta
                       items: equipas.map((equipa) {
                         return DropdownMenuItem<String>(
                           value: equipa['idTeam'].toString(),
-                          child: Text(equipa['name'],
-                              style: const TextStyle(color: Colors.black)),
+                          child: Text(
+                            equipa['name'],
+                            style: const TextStyle(
+                                color: Colors
+                                    .white), // texto preto no menu suspenso
+                          ),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -302,22 +346,31 @@ class _AddJogoPageState extends State<AddJogoPage> {
                     DropdownButtonFormField<String>(
                       value: selectedEquipaVisitante,
                       decoration: const InputDecoration(
-                        hintText: 'Selecione a Equipa Visitante',
                         filled: true,
-                        fillColor: Color(0xFFE6E6E6),
-                        hintStyle: TextStyle(color: Colors.black),
+                        fillColor: Color.fromARGB(255, 134, 133, 133),
                         border: OutlineInputBorder(
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.all(Radius.circular(8.0)),
                         ),
                       ),
+                      hint: const Text(
+                        'Selecione a Equipa Visitante',
+                        style: TextStyle(
+                            color: Colors.black), // <-- placeholder preto
+                      ),
                       dropdownColor: const Color(0xFF2C2C2C),
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(
+                          color: Colors.black), // <-- valor selecionado preto
+                      iconEnabledColor: Colors.black,
+                      iconDisabledColor: Colors.black,
                       items: equipas.map((equipa) {
                         return DropdownMenuItem<String>(
-                          value: equipa['idEquipa'].toString(),
-                          child: Text(equipa['nome'],
-                              style: const TextStyle(color: Colors.black)),
+                          value: equipa['idTeam'].toString(),
+                          child: Text(
+                            equipa['name'],
+                            style: const TextStyle(
+                                color: Colors.white), // <-- opções brancas
+                          ),
                         );
                       }).toList(),
                       onChanged: (value) {

@@ -66,19 +66,26 @@ class AddAtletaPageState extends State<AddAtletaPage> {
         });
       } else {}
 
+      // DEBUG: Mostra status e body da resposta dos encarregados
+      print('Encarregados status: ${responseEncarregados.statusCode}');
+      print('Encarregados body: ${responseEncarregados.body}');
+
       if (responseEncarregados.statusCode == 200) {
         final data = json.decode(responseEncarregados.body);
-        if (data['encarregados'] != null) {
-          setState(() {
-            encarregados = data['encarregados'];
-          });
-        } else {}
-      } else {}
+        print('Encarregados decoded: $data');
+        setState(() {
+          encarregados = data; // data já é uma lista!
+        });
+      } else {
+        print(
+            'Erro ao buscar encarregados: ${responseEncarregados.statusCode}');
+      }
     } catch (e) {
-      if (!mounted) return; // Verifica se o widget está montado
+      if (!mounted) return;
       setState(() {
         mensagem = 'Erro ao carregar os dados.';
       });
+      print('Erro no loadData: $e');
     }
   }
 
@@ -197,11 +204,16 @@ class AddAtletaPageState extends State<AddAtletaPage> {
         'birthDate': dataNascimentoController.text,
         'nationality': nacionalidadeController.text,
         'birthplace': naturalidadeController.text,
-        'idPosition': selectedPosicao ?? '',
-        'idGuardian': selectedEncarregado ?? '',
-        'idTeam': selectedEquipa ?? '',
+        if (selectedPosicao != null && selectedPosicao != '')
+          'idPosition': int.tryParse(selectedPosicao!), // <-- converte para int
+        if (selectedEncarregado != null && selectedEncarregado != '')
+          'idGuardian': int.tryParse(selectedEncarregado!),
+        if (selectedEquipa != null && selectedEquipa != '')
+          'idTeam': int.tryParse(selectedEquipa!),
         'link': linkController.text.isNotEmpty ? linkController.text : '',
       };
+
+      print('DEBUG atleta: $atleta'); // <-- Mostra o corpo enviado
 
       try {
         final token = await AuthService().getToken();
@@ -213,6 +225,9 @@ class AddAtletaPageState extends State<AddAtletaPage> {
           },
           body: json.encode(atleta),
         );
+
+        print('DEBUG status: ${response.statusCode}'); // <-- Mostra status
+        print('DEBUG body: ${response.body}'); // <-- Mostra resposta
 
         if (!mounted) return;
 
@@ -227,10 +242,12 @@ class AddAtletaPageState extends State<AddAtletaPage> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Erro ao adicionar Jogador')),
+            SnackBar(
+                content: Text('Erro ao adicionar Jogador: ${response.body}')),
           );
         }
       } catch (e) {
+        print('DEBUG exception: $e'); // <-- Mostra exceção
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao conectar ao servidor')),
         );
@@ -304,33 +321,138 @@ class AddAtletaPageState extends State<AddAtletaPage> {
                             _buildTextField(
                                 'Naturalidade', naturalidadeController),
                             const SizedBox(height: 10),
-                            _buildDropdown(
-                              'Posição (opcional)',
-                              selectedPosicao,
-                              posicoes,
-                              (value) {
+                            DropdownButtonFormField<String>(
+                              value: selectedPosicao,
+                              decoration: const InputDecoration(
+                                filled: true,
+                                fillColor: Color.fromARGB(255, 125, 123, 123),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                              ),
+                              hint: const Text(
+                                'Posição (opcional)',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              dropdownColor: Colors.black,
+                              style: const TextStyle(color: Colors.black),
+                              iconEnabledColor: Colors.black,
+                              iconDisabledColor: Colors.black,
+                              items: [
+                                if (selectedPosicao == null)
+                                  const DropdownMenuItem<String>(
+                                    value: null,
+                                    child: Text(
+                                      'Posição (opcional)',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ...posicoes.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item['id'].toString(),
+                                    child: Text(
+                                      item['name'],
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                              onChanged: (value) {
                                 setState(() {
                                   selectedPosicao = value;
                                 });
                               },
                             ),
                             const SizedBox(height: 10),
-                            _buildDropdown(
-                              'Encarregado (opcional)',
-                              selectedEncarregado,
-                              encarregados,
-                              (value) {
+                            DropdownButtonFormField<String>(
+                              value: selectedEncarregado,
+                              decoration: const InputDecoration(
+                                filled: true,
+                                fillColor: Color.fromARGB(255, 125, 123, 123),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                              ),
+                              hint: const Text(
+                                'Encarregado (opcional)',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              dropdownColor: Colors.black,
+                              style: const TextStyle(color: Colors.black),
+                              iconEnabledColor: Colors.black,
+                              iconDisabledColor: Colors.black,
+                              items: [
+                                if (selectedEncarregado == null)
+                                  const DropdownMenuItem<String>(
+                                    value: null,
+                                    child: Text(
+                                      'Encarregado (opcional)',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ...encarregados.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item['idGuardian'].toString(),
+                                    child: Text(
+                                      item['name'],
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                              onChanged: (value) {
                                 setState(() {
                                   selectedEncarregado = value;
                                 });
                               },
                             ),
                             const SizedBox(height: 10),
-                            _buildDropdown(
-                              'Equipa (opcional)',
-                              selectedEquipa,
-                              equipas,
-                              (value) {
+                            DropdownButtonFormField<String>(
+                              value: selectedEquipa,
+                              decoration: const InputDecoration(
+                                filled: true,
+                                fillColor: Color.fromARGB(255, 125, 123, 123),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                              ),
+                              hint: const Text(
+                                'Equipa (opcional)',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              dropdownColor: Colors.black,
+                              style: const TextStyle(color: Colors.black),
+                              iconEnabledColor: Colors.black,
+                              iconDisabledColor: Colors.black,
+                              items: [
+                                if (selectedEquipa == null)
+                                  const DropdownMenuItem<String>(
+                                    value: null,
+                                    child: Text(
+                                      'Equipa (opcional)',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                ...equipas.map((item) {
+                                  return DropdownMenuItem<String>(
+                                    value: item['idTeam'].toString(),
+                                    child: Text(
+                                      item['name'],
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                              onChanged: (value) {
                                 setState(() {
                                   selectedEquipa = value;
                                 });
@@ -411,72 +533,6 @@ class AddAtletaPageState extends State<AddAtletaPage> {
       onChanged: (value) {
         // Este método será chamado ao digitar, mas o TextField já atualiza dinamicamente.
       },
-    );
-  }
-
-  Widget _buildDropdown(String label, String? value, List<dynamic> items,
-      Function(String?) onChanged) {
-    return Container(
-      height: 50, // Altura fixa para a dropdown
-      decoration: BoxDecoration(
-        color: Colors.white, // Fundo semitransparente
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Stack(
-        alignment: Alignment.center, // Centraliza os elementos
-        children: [
-          DropdownButtonFormField<String>(
-            value: value,
-            hint: Text(
-              label, // Texto centralizado
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.w400, // Peso regular
-              ),
-            ),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            ),
-            dropdownColor: Colors.black,
-            icon: const SizedBox(), // Remove o ícone padrão
-            style: const TextStyle(color: Colors.white),
-            onChanged: onChanged,
-            items: [
-              DropdownMenuItem<String>(
-                value: null,
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              ...items.map((item) {
-                final String itemName = item['nome'] ?? item['id'].toString();
-                return DropdownMenuItem<String>(
-                  value: item['id'].toString(),
-                  child: Text(
-                    itemName,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-              }),
-            ],
-          ),
-          Positioned(
-            right: 16, // Ícone alinhado à direita
-            child: Icon(
-              Icons.arrow_drop_down, // Ícone de seta
-              color: Colors.black,
-              size: 24,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
