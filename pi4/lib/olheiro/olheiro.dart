@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pi4/loginpage.dart';
 import '../admin/players.dart';
 import '../selecao_escalao_page.dart';
-import '../admin/add_jogador_page.dart';
-import '../admin/add_jogos_page.dart';
-import '../admin/add_tarefa_page.dart';
+import 'relatorios_submetidos.dart';
 import '../definicoes.dart';
+import 'minhastarefas_page.dart';
 
 
 
@@ -16,6 +15,26 @@ class OlheiroPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Grupos de opções
     final List<_MenuOption> mainOptions = [
+      _MenuOption(
+        'Tarefas',
+        Icons.description_outlined,
+        () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MinhasTarefasPage()),
+          );
+        },
+      ),
+      _MenuOption(
+        'Relatórios',
+        Icons.edit,
+        () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RelatoriosSubmetidosPage()),
+          );
+        },
+      ),
       _MenuOption(
         'Jogadores',
         Icons.sports_soccer,
@@ -33,26 +52,7 @@ class OlheiroPage extends StatelessWidget {
         );
       }),
     ];
-    final List<_MenuOption> addOptions = [
-      _MenuOption('Adicionar Jogador', Icons.sports_soccer_outlined, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AddAtletaPage()),
-        );
-      }),
-      _MenuOption('Adicionar Jogo', Icons.sports_outlined, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AddJogoPage()),
-        );
-      }),
-      _MenuOption('Atribuir Tarefa', Icons.description_outlined, () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AddTarefaPage()),
-        );
-      }),
-    ];
+    
     final _MenuOption settingsOption =
         _MenuOption('Definições', Icons.settings, () {
           Navigator.push(
@@ -119,13 +119,8 @@ class OlheiroPage extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 20),
                     child: buildButton(option),
                   )),
-              const SizedBox(height: 32),
+              const SizedBox(height: 220),
               // Grupo adicionar
-              ...addOptions.map((option) => Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: buildButton(option),
-                  )),
-              const Spacer(),
               // Definições no fundo
               buildButton(settingsOption),
             ],
