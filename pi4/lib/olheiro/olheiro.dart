@@ -5,6 +5,7 @@ import '../selecao_escalao_page.dart';
 import 'relatorios_submetidos.dart';
 import '../definicoes.dart';
 import 'minhastarefas_page.dart';
+import 'players_olheiro.dart';
 
 
 
@@ -41,7 +42,7 @@ class OlheiroPage extends StatelessWidget {
         () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const JogadoresPage()),
+            MaterialPageRoute(builder: (context) => const JogadoresOlheiroPage()),
           );
         },
       ),

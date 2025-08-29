@@ -5,27 +5,27 @@ import '../autenticacao/auth_service.dart';
 import '../autenticacao/jwt_decode.dart';
 
 class CriarRelatorioPage extends StatefulWidget {
-  final int idAtleta;
+  final int idAthlete;
 
-  const CriarRelatorioPage({super.key, required this.idAtleta});
+  const CriarRelatorioPage({super.key, required this.idAthlete});
 
   @override
   CriarRelatorioPageState createState() => CriarRelatorioPageState();
 }
 
 class CriarRelatorioPageState extends State<CriarRelatorioPage> {
-  final String apiUrl = 'https://pi4-backend-r17y.onrender.com';
+  final String apiUrl = 'https://pi4-3soq.onrender.com';
   bool isLoading = false;
 
   final Map<String, dynamic> formData = {
-    'tecnica': 1,
-    'velocidade': 1,
-    'atitudeCompetitiva': 1,
-    'inteligencia': 1,
-    'altura': 'Baixo',
-    'morfologia': 'Ectomorfo',
-    'ratingFinal': 1,
-    'textoLivre': '',
+    'technique': 1,
+    'speed': 1,
+    'competitiveAttitude': 1,
+    'intelligence': 1,
+    'height': 'Baixo',
+    'morphology': 'Ectomorfo',
+    'finalRating': 1,
+    'freeText': '',
   };
 
   Future<void> submitReport() async {
@@ -33,71 +33,73 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF121212), // Fundo escuro
+          backgroundColor: const Color(0xFF232323),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Bordas arredondadas
+            borderRadius: BorderRadius.circular(16),
           ),
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.help_outline, // Ícone de interrogação
-                color: Colors.orange,
-                size: 50, // Tamanho do ícone
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Tens a certeza que desejas submeter este relatório?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ],
+          titlePadding:
+              const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 0),
+          contentPadding:
+              const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 8),
+          title: const Text(
+            'Vai submeter o relatório,\ntem a certeza?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
           actionsAlignment: MainAxisAlignment.center,
-          actions: <Widget>[
-            // Botão "Sim, submeter"
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFD700),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sim',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Sim, submeter!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD9D9D9),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Não',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 8), // Espaço entre os botões
-
-            // Botão "Cancelar"
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              ],
             ),
           ],
         );
@@ -130,11 +132,11 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
       final idUtilizador = JwtDecoder.getUserIdFromToken(token);
       final Map<String, dynamic> dataToSend = {
         ...formData,
-        'idUtilizador': idUtilizador,
+        'idUser': idUtilizador,
       };
 
       final response = await http.post(
-        Uri.parse('$apiUrl/relatorios/${widget.idAtleta}'),
+        Uri.parse('$apiUrl/reports/${widget.idAthlete}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -192,148 +194,207 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
 
   @override
   Widget build(BuildContext context) {
+    double finalRating = _calculateFinalRating();
+
     return Scaffold(
-      backgroundColor: const Color(0xFF2C2C2C),
+      backgroundColor: const Color(0xFF262626),
       appBar: AppBar(
-        title: const Text('Avaliações'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF303030),
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'Criar relatório',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  buildRatingCard('Técnica', 'tecnica'),
-                  buildRatingCard('Velocidade', 'velocidade'),
-                  buildRatingCard('Inteligência', 'inteligencia'),
-                  buildRatingCard('Atitude Competitiva', 'atitudeCompetitiva'),
-                  buildDropdownField('Morfologia', 'morfologia',
-                      ['Ectomorfo', 'Mesomorfo', 'Endomorfo']),
-                  buildDropdownField(
-                      'Altura', 'altura', ['Baixo', 'Médio', 'Alto']),
-                  buildRatingCard('Rating Final', 'ratingFinal'),
-                  buildTextField('Texto Livre', 'textoLivre'),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: submitReport,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 90),
+            child: Column(
+              children: [
+                _buildDropdownField(
+                    'Técnica', 'technique', ['1', '2', '3', '4']),
+                const SizedBox(height: 12),
+                _buildDropdownField(
+                    'Velocidade', 'speed', ['1', '2', '3', '4']),
+                const SizedBox(height: 12),
+                _buildDropdownField('Atitude competitiva',
+                    'competitiveAttitude', ['1', '2', '3', '4']),
+                const SizedBox(height: 12),
+                _buildDropdownField(
+                    'Inteligência', 'intelligence', ['1', '2', '3', '4']),
+                const SizedBox(height: 12),
+                _buildDropdownField('Morfologia', 'morphology',
+                    ['Ectomorfo', 'Mesomorfo', 'Endomorfo']),
+                const SizedBox(height: 12),
+                _buildDropdownField(
+                    'Altura', 'height', ['Baixo', 'Médio', 'Alto']),
+                const SizedBox(height: 12),
+                _buildTextField('Texto livre', 'freeText'),
+                const SizedBox(height: 18),
+                // Rating final
+                _buildDropdownField('Rating final', 'finalRating', ['1', '2', '3', '4']),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            setState(() {
+                              formData['finalRating'] = finalRating;
+                            });
+                            submitReport();
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: const Color(0xFFFFD700),
+                      foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      minimumSize: const Size.fromHeight(
-                          50), // Define altura e largura total
+                      elevation: 0,
                     ),
                     child: const Text(
-                      'Submeter',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+                      'Avaliar',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-    );
-  }
-
-  Widget buildRatingCard(String label, String field) {
-    return Card(
-      color: const Color(0xFF121212),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label.toLowerCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove, color: Colors.yellow),
-                  onPressed: () => decrementField(field),
-                ),
-                Text(
-                  '${formData[field]}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add, color: Colors.yellow),
-                  onPressed: () => incrementField(field),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildDropdownField(String label, String field, List<String> options) {
-    return Card(
-      color: const Color(0xFF121212),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
-            border: InputBorder.none,
           ),
-          dropdownColor: const Color(0xFF121212),
-          value: formData[field],
-          onChanged: (value) {
-            setState(() {
-              formData[field] = value!;
-            });
-          },
-          items: options.map((option) {
-            return DropdownMenuItem(
-              value: option,
-              child: Text(
-                option,
-                style: const TextStyle(color: Colors.white),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          // Barra Home fixa no fundo
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              color: const Color(0xFF303030),
+              child: IconButton(
+                icon:
+                    const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
-            );
-          }).toList(),
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildTextField(String label, String field) {
-    return Card(
-      color: const Color(0xFF121212),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: TextField(
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: const TextStyle(color: Colors.white70),
-            border: InputBorder.none,
+// Calcula a média dos 4 campos principais (1 a 4)
+  double _calculateFinalRating() {
+    final values = [
+      int.tryParse(formData['technique'].toString()) ?? 1,
+      int.tryParse(formData['speed'].toString()) ?? 1,
+      int.tryParse(formData['competitiveAttitude'].toString()) ?? 1,
+      int.tryParse(formData['intelligence'].toString()) ?? 1,
+    ];
+    return values.reduce((a, b) => a + b) / values.length;
+  }
+
+// --- NOVOS WIDGETS DE ESTILO ---
+
+  Widget _buildDropdownField(String label, String field, List<String> options) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
           ),
-          onChanged: (value) {
-            setState(() {
-              formData[field] = value;
-            });
-          },
-          style: const TextStyle(color: Colors.white),
         ),
-      ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFE6E6E6),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: DropdownButtonFormField<String>(
+            value: formData[field]?.toString(),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+            dropdownColor: const Color(0xFFE6E6E6),
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.w600),
+            icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+            onChanged: (value) {
+              setState(() {
+                formData[field] = value!;
+              });
+            },
+            items: options.map((option) {
+              return DropdownMenuItem(
+                value: option,
+                child: Text(option),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(String label, String field) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFE6E6E6),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextField(
+            minLines: 1,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+            style: const TextStyle(color: Colors.black),
+            onChanged: (value) {
+              setState(() {
+                formData[field] = value;
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 }

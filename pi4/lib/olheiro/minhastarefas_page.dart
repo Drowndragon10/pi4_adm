@@ -126,7 +126,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CriarRelatorioPage(idAtleta: idAtleta),
+          builder: (context) => CriarRelatorioPage(idAthlete: idAtleta),
         ),
       ).then((_) {
         _loadTarefas(); // Recarregar tarefas ao retornar da página de criação de relatório
@@ -156,7 +156,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Detalhes: ${tarefa['title'] ?? "Sem título"}',
+                  'Nova Tarefa!',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -245,7 +245,6 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                 ),
                 const SizedBox(height: 16),
                 Center(
-                  // Alinha os botões ao centro
                   child: Column(
                     children: [
                       ElevatedButton(
@@ -256,16 +255,31 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold, // Força o texto a bold
+                            fontSize: 16,
+                          ),
                         ),
-                        child: const Text('Criar Relatório'),
+                        child: const Text(
+                          'Criar Relatório',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold), // Garante bold
+                        ),
                       ),
-                      const SizedBox(height: 8), // Espaço entre os botões
+                      const SizedBox(height: 8),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.yellow,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                        child: const Text('Ver mais tarde'),
+                        child: const Text('Fechar'),
                       ),
                     ],
                   ),
@@ -285,6 +299,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
       appBar: AppBar(
         title: const Text('Tarefas'),
         backgroundColor: const Color(0xFF303030),
+        automaticallyImplyLeading: false,
         centerTitle: true,
         elevation: 0,
       ),
@@ -320,39 +335,47 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                               child: ListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 20, horizontal: 20),
-                                title: Text(
-                                  tarefa['title'] ?? 'Sem título',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      tarefa['description'] ?? 'Sem descrição',
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 15,
+                                    Expanded(
+                                      child: Text(
+                                        tarefa['title'] ?? 'Sem título',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(width: 12),
                                     Text(
                                       tarefa['taskDate'] != null
                                           ? DateFormat('dd/MM/yyyy').format(
-                                              DateTime.parse(
-                                                      tarefa['taskDate'])
+                                              DateTime.parse(tarefa['taskDate'])
                                                   .toLocal())
                                           : 'Sem data',
                                       style: const TextStyle(
                                         color: Colors.white70,
-                                        fontSize: 14,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    tarefa['description'] ?? 'Sem descrição',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 15,
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                                 onTap: () => _mostrarDetalhesTarefa(tarefa),
                               ),
