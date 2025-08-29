@@ -49,9 +49,13 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
         final atletasData = json.decode(responses[1].body);
         final utilizadoresData = json.decode(responses[2].body);
 
+        print('Jogos: $jogosData');
+
         // Filtra apenas os olheiros
         final olheiros =
             utilizadoresData.where((user) => user['idUserType'] == 3).toList();
+
+            print('Olheiros: $olheiros');
 
         setState(() {
           jogos = jogosData;
@@ -259,15 +263,30 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               style: const TextStyle(color: Colors.white),
                               value: selectedJogo,
                               items: jogos.map((jogo) {
-                                final equipaCasa = jogo['teams'].firstWhere(
-                                    (e) => e['role'] == 'casa')['teamName'];
-                                final equipaVisitante = jogo['teams']
-                                    .firstWhere((e) =>
-                                        e['role'] == 'visitante')['teamName'];
+                                final teams = jogo['teams'] ?? [];
+                                final equipaCasa = teams.firstWhere(
+                                  (e) => e['role'] == 'casa',
+                                  orElse: () => {
+                                    'team': {'name': 'Casa?'}
+                                  },
+                                );
+                                final equipaVisitante = teams.firstWhere(
+                                  (e) => e['role'] == 'visitante',
+                                  orElse: () => {
+                                    'team': {'name': 'Visitante?'}
+                                  },
+                                );
+                                final nomeCasa =
+                                    equipaCasa['team']?['name'] ?? 'Casa?';
+                                final nomeVisitante = equipaVisitante['team']
+                                        ?['name'] ??
+                                    'Visitante?';
+                                final idMatch = (jogo['match']?['idMatch'] ??
+                                        jogo['idMatch'])
+                                    .toString();
                                 return DropdownMenuItem(
-                                  value: jogo['match']['idMatch'].toString(),
-                                  child:
-                                      Text('$equipaCasa vs $equipaVisitante'),
+                                  value: idMatch,
+                                  child: Text('$nomeCasa vs $nomeVisitante'),
                                 );
                               }).toList(),
                               onChanged: (value) {
