@@ -17,6 +17,7 @@ class _EquipasPageState extends State<EquipasPage> {
   String? userRole;
   bool isLoading = true;
   int? userId;
+  int? idUser;
 
   @override
   void initState() {
@@ -50,10 +51,10 @@ class _EquipasPageState extends State<EquipasPage> {
         return;
       }
 
-      userId = JwtDecoder.getUserIdFromToken(token);
-      print('DEBUG userId: $userId');
+      idUser = JwtDecoder.getUserIdFromToken(token);
+      print('DEBUG userId: $idUser');
 
-      final url = 'https://pi4-3soq.onrender.com/teams/coach/$userId';
+      final url = 'https://pi4-3soq.onrender.com/teams/coach/$idUser';
 
       final response = await http.get(
         Uri.parse(url),
@@ -61,7 +62,7 @@ class _EquipasPageState extends State<EquipasPage> {
         
       );
 
-      print('DEBUG equipas response: ${response}');
+      print('DEBUG equipas response: ${response.body}');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
