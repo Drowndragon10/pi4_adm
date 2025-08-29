@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
-import 'add_report_page.dart';
 
-class PlayerOlheiroDetailsPage extends StatefulWidget {
+class PlayerTreinadorDetailsPage extends StatefulWidget {
   final dynamic atleta;
   final void Function(String idAthlete, int currentRating) onReportar;
 
-  const PlayerOlheiroDetailsPage({
+  const PlayerTreinadorDetailsPage({
     Key? key,
     required this.atleta,
     required this.onReportar,
   }) : super(key: key);
 
   @override
-  State<PlayerOlheiroDetailsPage> createState() => _PlayerOlheiroDetailsPageState();
+  State<PlayerTreinadorDetailsPage> createState() => _PlayerTreinadorDetailsPageState();
 }
 
-class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
+class _PlayerTreinadorDetailsPageState extends State<PlayerTreinadorDetailsPage> {
   late int rating;
 
   @override
@@ -173,40 +172,6 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
-            // Botão Avaliar
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (widget.atleta['idAthlete'] != null) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CriarRelatorioPage(
-                          idAthlete: widget.atleta['idAthlete'],
-                        ),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Atleta não atribuído!'),
-                      ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFD700),
-                ),
-                child: const Text(
-                  'Criar Relatório',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),

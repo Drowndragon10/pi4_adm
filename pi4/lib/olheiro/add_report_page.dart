@@ -194,7 +194,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
 
   @override
   Widget build(BuildContext context) {
-    double finalRating = _calculateFinalRating();
+    
 
     return Scaffold(
       backgroundColor: const Color(0xFF262626),
@@ -243,6 +243,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                 const SizedBox(height: 18),
                 // Rating final
                 _buildDropdownField('Rating final', 'finalRating', ['1', '2', '3', '4']),
+                const SizedBox(height: 18),
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -250,9 +251,6 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                     onPressed: isLoading
                         ? null
                         : () {
-                            setState(() {
-                              formData['finalRating'] = finalRating;
-                            });
                             submitReport();
                           },
                     style: ElevatedButton.styleFrom(

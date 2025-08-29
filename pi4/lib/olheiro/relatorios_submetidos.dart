@@ -56,8 +56,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
 
       // Fazer a chamada para obter os relatórios do utilizador
       final response = await http.get(
-        Uri.parse(
-            'https://pi4-3soq.onrender.com/reports/user/$id'),
+        Uri.parse('https://pi4-3soq.onrender.com/reports/user/$id'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -146,7 +145,8 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 ),
                 child: const Text(
                   'Filtros',
@@ -161,7 +161,8 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
           // Lista de relatórios
           Expanded(
             child: isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white))
                 : filteredRelatorios.isEmpty
                     ? const Center(
                         child: Text(
@@ -179,7 +180,8 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                               : null;
 
                           return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 16),
                             decoration: BoxDecoration(
                               color: const Color(0xFF2C2C2C),
                               borderRadius: BorderRadius.circular(16),
@@ -192,19 +194,35 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                               ],
                             ),
                             child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 18, horizontal: 20),
                               title: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
-                                    child: Text(
-                                      'Relatório - ${data != null ? "${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}" : "Sem data"}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 17,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Relatório - ${data != null ? "${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}" : "Sem data"}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          relatorio['athlete']?['name'] ?? 'Sem Nome',
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   Row(
@@ -258,7 +276,8 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
       builder: (context) {
         return Dialog(
           backgroundColor: const Color(0xFF2C2C2C),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

@@ -6,11 +6,9 @@ import 'autenticacao/auth_service.dart';
 import 'autenticacao/jwt_decode.dart'; // Importa o seu arquivo de jwt_decode
 import 'autenticacao/verificarwifi.dart';
 
-
-// import 'equipas_page.dart';
-// import '../minhastarefas_page.dart';
 import 'main.dart';
 import 'olheiro/olheiro.dart';
+import 'treinador/treinador.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -146,6 +144,13 @@ class LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (context) => const OlheiroPage()),
       );
+    } else if (role == 'Treinador') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Treinador()),
+      );
+    } else {
+      _showUserRoleErrorDialog();
     }
   }
 

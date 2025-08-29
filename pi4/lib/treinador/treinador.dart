@@ -1,55 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:pi4/loginpage.dart';
-import '../admin/players.dart';
-import 'selecao_escalao_page_olheiro.dart';
-import 'relatorios_submetidos.dart';
+import 'selecao_escalao_page_treinador.dart';
 import '../definicoes.dart';
-import 'minhastarefas_page.dart';
-import 'players_olheiro.dart';
+import 'players_treinador.dart';
+import 'equipas_page.dart';
 
 
 
-class OlheiroPage extends StatelessWidget {
-  const OlheiroPage({super.key});
+class Treinador extends StatelessWidget {
+  const Treinador({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Grupos de opções
     final List<_MenuOption> mainOptions = [
       _MenuOption(
-        'Tarefas',
-        Icons.description_outlined,
-        () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MinhasTarefasPage()),
-          );
-        },
-      ),
-      _MenuOption(
-        'Relatórios',
-        Icons.edit,
-        () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const RelatoriosSubmetidosPage()),
-          );
-        },
-      ),
-      _MenuOption(
         'Jogadores',
         Icons.sports_soccer,
         () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const JogadoresOlheiroPage()),
+            MaterialPageRoute(builder: (context) => const JogadoresTreinadorPage()),
           );
         },
       ),
+      _MenuOption('Equipas', Icons.group, () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EquipasPage()),
+        );
+      }),
       _MenuOption('Jogos', Icons.sports, () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const EscalaoOlheiroPage()),
+          MaterialPageRoute(builder: (context) => const EscalaoTreinadorPage()),
         );
       }),
     ];
