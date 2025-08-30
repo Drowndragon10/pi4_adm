@@ -103,7 +103,7 @@ class Treinador extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 20),
                     child: buildButton(option),
                   )),
-              const SizedBox(height: 220),
+              const SizedBox(height: 270),
               // Grupo adicionar
               // Definições no fundo
               buildButton(settingsOption),

@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Viriatos Scouting',
       theme: ThemeData(
-        fontFamily: 'Sora', // Define a fonte padrão globalmente
+        fontFamily: 'fs-lucas-pro', // Define a fonte padrão globalmente
         brightness: Brightness.dark, // Mantém o tema escuro
         scaffoldBackgroundColor: Colors.black87, // Fundo do Scaffold
         primaryColor: Colors.blueGrey, // Cor do AppBar

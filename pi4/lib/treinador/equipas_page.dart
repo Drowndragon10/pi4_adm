@@ -17,7 +17,6 @@ class _EquipasPageState extends State<EquipasPage> {
   String? userRole;
   bool isLoading = true;
   int? userId;
-  int? idUser;
 
   @override
   void initState() {
@@ -51,15 +50,14 @@ class _EquipasPageState extends State<EquipasPage> {
         return;
       }
 
-      idUser = JwtDecoder.getUserIdFromToken(token);
-      print('DEBUG userId: $idUser');
+      userId = JwtDecoder.getUserIdFromToken(token);
+      print('DEBUG userId: $userId');
 
-      final url = 'https://pi4-3soq.onrender.com/teams/coach/$idUser';
+      final url = 'https://pi4-3soq.onrender.com/teams/coach/$userId';
 
       final response = await http.get(
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $token'},
-        
       );
 
       print('DEBUG equipas response: ${response.body}');
@@ -96,13 +94,16 @@ class _EquipasPageState extends State<EquipasPage> {
         backgroundColor: const Color(0xFF303030),
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Equipas',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 32,
+            
           ),
+          
         ),
       ),
       body: Column(
@@ -119,20 +120,14 @@ class _EquipasPageState extends State<EquipasPage> {
                           textAlign: TextAlign.center,
                         ),
                       )
-                    : Container(
+                    : Card(
+                        color: const Color(0xFF2C2C2C),
                         margin: const EdgeInsets.symmetric(
-                            vertical: 24, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2C2C2C),
+                            vertical: 24, horizontal: 24),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
                         ),
+                        elevation: 6,
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                               vertical: 18, horizontal: 18),

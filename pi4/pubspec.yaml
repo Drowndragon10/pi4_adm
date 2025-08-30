@@ -68,9 +68,9 @@ flutter:
   assets:
       - assets/images/image.png
   fonts:
-    - family: Sora
+    - family: fs-lucas-pro
       fonts:
-        - asset: assets/fonts/Sora-Regular.ttf
+        - asset: assets/fonts/fs-lucas-pro-bold.ttf
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
