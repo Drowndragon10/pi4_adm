@@ -66,17 +66,10 @@ class AddAtletaPageState extends State<AddAtletaPage> {
         });
       } else {}
 
-      // DEBUG: Mostra status e body da resposta dos encarregados
-      print('Encarregados status: ${responseEncarregados.statusCode}');
-      print('Encarregados body: ${responseEncarregados.body}');
+  
 
       if (responseEncarregados.statusCode == 200) {
         final data = json.decode(responseEncarregados.body);
-        print('Encarregados decoded: $data');
-        setState(() {
-          encarregados = data; // data já é uma lista!
-        });
-      } else {
         print(
             'Erro ao buscar encarregados: ${responseEncarregados.statusCode}');
       }

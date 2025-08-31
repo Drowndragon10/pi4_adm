@@ -89,6 +89,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
       await _loadFilters();
     }
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) {
         return Dialog(
@@ -148,7 +149,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -210,7 +211,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
   }
 
   void _avaliarAtleta(String idAthlete, int currentRating) {
-    if (idAthlete == null || idAthlete == 'null' || idAthlete.isEmpty) {
+    if (idAthlete == 'null' || idAthlete.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('ID do atleta inválido!')),
       );
@@ -326,7 +327,9 @@ class _JogadoresPageState extends State<JogadoresPage> {
 
                               if (response.statusCode == 200) {
                                 if (mounted) {
+                                  // ignore: use_build_context_synchronously
                                   Navigator.of(context).pop();
+                                  // ignore: use_build_context_synchronously
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                         content: Text(
@@ -343,6 +346,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                                   });
                                 }
                               } else {
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
@@ -350,6 +354,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                                 );
                               }
                             } catch (e) {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Erro de rede.')),
                               );
@@ -388,28 +393,6 @@ class _JogadoresPageState extends State<JogadoresPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '$label ',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextSpan(
-              text: value,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -516,6 +499,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: Colors.black.withOpacity(0.4),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),

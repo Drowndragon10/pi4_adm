@@ -88,6 +88,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
       await _loadFilters();
     }
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) {
         return Dialog(
@@ -147,7 +148,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -208,172 +209,6 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     });
   }
 
-  void _avaliarAtleta(String idAthlete, int currentRating) {
-    if (idAthlete == null || idAthlete == 'null' || idAthlete.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ID do atleta inválido!')),
-      );
-      return;
-    }
-    int rating = currentRating;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF232323),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Avaliação',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Classificação: (1-5)',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      return IconButton(
-                        icon: Icon(
-                          index < rating ? Icons.star : Icons.star_border,
-                          color: const Color(0xFFFFD700),
-                          size: 36,
-                        ),
-                        splashRadius: 22,
-                        onPressed: () {
-                          setDialogState(() {
-                            rating = index + 1;
-                          });
-                        },
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Botão Cancelar
-                      Expanded(
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: const Color(0xFFD9D9D9),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            'Cancelar',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Botão Avaliar
-                      Expanded(
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFD700),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () async {
-                            final token = await AuthService().getToken();
-                            final config = {
-                              'Authorization': 'Bearer $token',
-                              'Content-Type': 'application/json',
-                            };
-
-                            try {
-                              final response = await http.put(
-                                Uri.parse(
-                                    'https://pi4-3soq.onrender.com/athletes/$idAthlete'),
-                                headers: config,
-                                body: json.encode({'rating': rating}),
-                              );
-
-                              if (response.statusCode == 200) {
-                                if (mounted) {
-                                  Navigator.of(context).pop();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Avaliação salva com sucesso!')),
-                                  );
-                                  setState(() {
-                                    atletas = atletas.map((atleta) {
-                                      if (atleta['idAthlete'] ==
-                                          int.parse(idAthlete)) {
-                                        atleta['rating'] = rating;
-                                      }
-                                      return atleta;
-                                    }).toList();
-                                  });
-                                }
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content:
-                                          Text('Erro ao salvar a avaliação.')),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Erro de rede.')),
-                              );
-                            }
-                          },
-                          child: const Text(
-                            'Avaliar',
-                            style: TextStyle(
-                              color: Color.fromRGBO(0, 0, 0, 0.7),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
   void _viewDetails(dynamic atleta) {
     Navigator.push(
@@ -393,28 +228,6 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '$label ',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextSpan(
-              text: value,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -521,6 +334,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
+                                // ignore: deprecated_member_use
                                 color: Colors.black.withOpacity(0.4),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),

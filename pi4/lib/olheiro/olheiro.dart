@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pi4/loginpage.dart';
-import '../admin/players.dart';
 import 'selecao_escalao_page_olheiro.dart';
 import 'relatorios_submetidos.dart';
 import '../definicoes.dart';

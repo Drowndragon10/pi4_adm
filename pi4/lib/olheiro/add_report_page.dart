@@ -119,6 +119,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
       setState(() {
         isLoading = false;
       });
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erro: Token não encontrado. Faça login novamente.'),
@@ -145,6 +146,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
       );
 
       if (response.statusCode == 201) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Relatorio criado com sucesso!'),
@@ -153,10 +155,12 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             duration: const Duration(seconds: 3),
           ),
         );
+        // ignore: use_build_context_synchronously
         Navigator.pop(context);
       } else {
         final Map<String, dynamic> errorResponse = jsonDecode(response.body);
         final errorMessage = errorResponse['error'] ?? 'Erro desconhecido.';
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao submeter relatório: $errorMessage'),
@@ -165,6 +169,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
         );
       }
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro inesperado: $e'),
@@ -300,15 +305,6 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
   }
 
 // Calcula a média dos 4 campos principais (1 a 4)
-  double _calculateFinalRating() {
-    final values = [
-      int.tryParse(formData['technique'].toString()) ?? 1,
-      int.tryParse(formData['speed'].toString()) ?? 1,
-      int.tryParse(formData['competitiveAttitude'].toString()) ?? 1,
-      int.tryParse(formData['intelligence'].toString()) ?? 1,
-    ];
-    return values.reduce((a, b) => a + b) / values.length;
-  }
 
 // --- NOVOS WIDGETS DE ESTILO ---
 

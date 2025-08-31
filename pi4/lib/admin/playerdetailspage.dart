@@ -6,6 +6,7 @@ class PlayerDetailsPage extends StatefulWidget {
   final dynamic atleta;
   final void Function(String idAtleta, int currentRating) onAvaliar;
 
+  // ignore: use_super_parameters
   const PlayerDetailsPage({
     Key? key,
     required this.atleta,
@@ -25,11 +26,6 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     rating = widget.atleta['classificacao'] ?? widget.atleta['rating'] ?? 0;
   }
 
-  void _atualizarRating(int novoRating) {
-    setState(() {
-      rating = novoRating;
-    });
-  }
 
   void _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
