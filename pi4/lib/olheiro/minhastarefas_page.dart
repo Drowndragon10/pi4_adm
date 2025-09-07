@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../autenticacao/auth_service.dart';
-import '../autenticacao/jwt_decode.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:http/http.dart' as http; // Importa o pacote http para requisições HTTP
+import 'dart:convert'; // Importa para codificação/decodificação JSON
+import '../autenticacao/auth_service.dart'; // Serviço de autenticação
+import '../autenticacao/jwt_decode.dart'; // Utilitário para decodificar JWT
 import 'add_report_page.dart'; // Página para criar relatório
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // Para formatação de datas
 
+// Página principal das tarefas do olheiro
 class MinhasTarefasPage extends StatefulWidget {
   const MinhasTarefasPage({super.key});
 
@@ -13,47 +14,50 @@ class MinhasTarefasPage extends StatefulWidget {
   State<MinhasTarefasPage> createState() => _MinhasTarefasPageState();
 }
 
+// Estado da página de tarefas
 class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
-  List<dynamic> tarefas = [];
-  List<dynamic> jogos = [];
-  String? userRole;
-  int? userId;
-  bool isLoading = true;
+  List<dynamic> tarefas = []; // Lista de tarefas do utilizador
+  List<dynamic> jogos = []; // Lista de jogos disponíveis
+  String? userRole; // Papel do utilizador (ex: olheiro)
+  int? userId; // ID do utilizador autenticado
+  bool isLoading = true; // Indica se está carregando dados
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData(); // Carrega dados do utilizador ao iniciar
   }
 
+  // Carrega dados do utilizador autenticado (token, role, id)
   Future<void> _loadUserData() async {
-    final authService = AuthService();
-    final token = await authService.getToken();
+    final authService = AuthService(); // Instancia o serviço de autenticação
+    final token = await authService.getToken(); // Obtém o token
 
     if (token == null) {
       return;
     }
 
     try {
-      final role = JwtDecoder.getUserRoleFromToken(token);
-      final id = JwtDecoder.getUserIdFromToken(token);
+      final role = JwtDecoder.getUserRoleFromToken(token); // Extrai o papel do token
+      final id = JwtDecoder.getUserIdFromToken(token); // Extrai o ID do token
 
       setState(() {
         userRole = role;
         userId = id;
       });
 
-      await _loadTarefas();
-      await _loadJogos();
+      await _loadTarefas(); // Carrega as tarefas do utilizador
+      await _loadJogos(); // Carrega os jogos disponíveis
       // ignore: empty_catches
     } catch (e) {
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Finaliza o loading
       });
     }
   }
 
+  // Carrega as tarefas do utilizador autenticado
   Future<void> _loadTarefas() async {
     final token = await AuthService().getToken();
 
@@ -66,6 +70,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
+          // Filtra apenas tarefas do utilizador autenticado
           tarefas = data.where((tarefa) => tarefa['idUser'] == userId).toList();
         });
       } else {}
@@ -73,6 +78,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
     } catch (e) {}
   }
 
+  // Carrega todos os jogos disponíveis
   Future<void> _loadJogos() async {
     final token = await AuthService().getToken();
 
@@ -91,6 +97,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
     } catch (e) {}
   }
 
+  // Retorna string com as equipas de um jogo pelo id do jogo
   String _getEquipasDoJogo(int idJogo) {
     final jogo = jogos.firstWhere(
       (j) => j['match']['idMatch'] == idJogo,
@@ -100,6 +107,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
     );
 
     if (jogo.isNotEmpty) {
+      // Obtém equipa da casa
       final equipaCasa = (jogo['teams'] as List).firstWhere(
         (e) => e['role'] == 'casa',
         orElse: () {
@@ -107,6 +115,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
         },
       )['team']['name'];
 
+      // Obtém equipa visitante
       final equipaVisitante = (jogo['teams'] as List).firstWhere(
         (e) => e['role'] == 'visitante',
         orElse: () {
@@ -120,6 +129,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
     return 'Sem equipas';
   }
 
+  // Navega para a página de criar relatório para o atleta da tarefa
   void _criarRelatorio(int? idAtleta) {
     if (idAtleta != null) {
       Navigator.push(
@@ -128,7 +138,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
           builder: (context) => CriarRelatorioPage(idAthlete: idAtleta),
         ),
       ).then((_) {
-        _loadTarefas(); // Recarregar tarefas ao retornar da página de criação de relatório
+        _loadTarefas(); // Recarrega tarefas ao retornar
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -137,6 +147,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
     }
   }
 
+  // Mostra detalhes da tarefa num popup/dialog
   void _mostrarDetalhesTarefa(Map<String, dynamic> tarefa) {
     showDialog(
       context: context,
@@ -154,6 +165,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
               mainAxisSize: MainAxisSize.min, // Ajusta à altura do conteúdo
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Título do popup
                 Text(
                   'Nova Tarefa!',
                   style: const TextStyle(
@@ -163,6 +175,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Linha da descrição
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -182,6 +195,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
+                // Linha do atleta
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -201,6 +215,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
+                // Linha do jogo
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -220,6 +235,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
+                // Linha da data
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -243,9 +259,11 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // Botões do popup
                 Center(
                   child: Column(
                     children: [
+                      // Botão para criar relatório
                       ElevatedButton(
                         onPressed: () =>
                             _criarRelatorio(tarefa['athlete']?['idAthlete']),
@@ -266,6 +284,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      // Botão para fechar o popup
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: TextButton.styleFrom(
@@ -293,21 +312,22 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Constrói a interface da página
     return Scaffold(
-      backgroundColor: const Color(0xFF262626),
+      backgroundColor: const Color(0xFF262626), // Cor de fundo
       appBar: AppBar(
-        title: const Text('Tarefas'),
-        backgroundColor: const Color(0xFF303030),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        elevation: 0,
+        title: const Text('Tarefas'), // Título da AppBar
+        backgroundColor: const Color(0xFF303030), // Cor da AppBar
+        automaticallyImplyLeading: false, // Remove botão de voltar
+        centerTitle: true, // Centraliza o título
+        elevation: 0, // Remove sombra
       ),
       body: Column(
         children: [
           Expanded(
             child: isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                    child: CircularProgressIndicator(color: Colors.white), // Loader
                   )
                 : tarefas.isEmpty
                     ? const Center(
@@ -317,13 +337,14 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                         ),
                       )
                     : RefreshIndicator(
-                        onRefresh: _loadTarefas,
+                        onRefresh: _loadTarefas, // Permite atualizar a lista
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(
                               vertical: 16, horizontal: 16),
                           itemCount: tarefas.length,
                           itemBuilder: (context, index) {
                             final tarefa = tarefas[index];
+                            // Card de cada tarefa
                             return Card(
                               color: const Color(0xFF2C2C2C),
                               elevation: 4,
@@ -376,7 +397,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                onTap: () => _mostrarDetalhesTarefa(tarefa),
+                                onTap: () => _mostrarDetalhesTarefa(tarefa), // Mostra detalhes ao clicar
                               ),
                             );
                           },
@@ -390,7 +411,7 @@ class _MinhasTarefasPageState extends State<MinhasTarefasPage> {
             child: IconButton(
               icon: const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
               onPressed: () {
-                Navigator.pop(context); // Ou navega para DashboardPage
+                Navigator.pop(context); // Volta para a página anterior
               },
             ),
           ),

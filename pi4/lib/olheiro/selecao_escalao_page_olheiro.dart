@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../autenticacao/auth_service.dart';
-import '../autenticacao/jwt_decode.dart';
-import 'jogos_page_olheiro.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:http/http.dart' as http; // Importa o pacote http para requisições HTTP
+import 'dart:convert'; // Importa para codificação/decodificação JSON
+import '../autenticacao/auth_service.dart'; // Serviço de autenticação
+import '../autenticacao/jwt_decode.dart'; // Utilitário para decodificar JWT
+import 'jogos_page_olheiro.dart'; // Página de jogos por escalão
 
+// Página de seleção de escalão para o olheiro
 class EscalaoOlheiroPage extends StatefulWidget {
   const EscalaoOlheiroPage({super.key});
 
@@ -12,22 +13,24 @@ class EscalaoOlheiroPage extends StatefulWidget {
   State<EscalaoOlheiroPage> createState() => _EscalaoOlheiroPageState();
 }
 
+// Estado da página de seleção de escalão
 class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
-  List<dynamic> categorias = [];
-  bool isLoadingCategorias = true;
-  String? userRole;
-  String searchQuery = '';
-  List<dynamic> filteredCategorias = [];
+  List<dynamic> categorias = []; // Lista de categorias etárias
+  bool isLoadingCategorias = true; // Indica se está carregando categorias
+  String? userRole; // Papel do utilizador autenticado
+  String searchQuery = ''; // Texto da pesquisa
+  List<dynamic> filteredCategorias = []; // Lista filtrada de categorias
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData(); // Carrega dados do utilizador ao iniciar
   }
 
+  // Carrega dados do utilizador autenticado e categorias
   Future<void> _loadUserData() async {
     try {
-      final token = await AuthService().getToken();
+      final token = await AuthService().getToken(); // Obtém token
       if (token == null) {
         return;
       }
@@ -38,11 +41,12 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
         userRole = role;
       });
 
-      _loadCategorias();
+      _loadCategorias(); // Carrega categorias
       // ignore: empty_catches
     } catch (e) {}
   }
 
+  // Filtra categorias pelo texto pesquisado
   void _searchCategorias(String query) {
     setState(() {
       searchQuery = query;
@@ -55,8 +59,8 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
 
   // Função para buscar as categorias etárias da API
   Future<void> _loadCategorias() async {
-    final token = await AuthService().getToken();
-    final config = {'Authorization': 'Bearer $token'};
+    final token = await AuthService().getToken(); // Obtém token
+    final config = {'Authorization': 'Bearer $token'}; // Header de autorização
 
     try {
       final response = await http.get(
@@ -65,21 +69,21 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final List<dynamic> data = json.decode(response.body); // Decodifica JSON
         setState(() {
-          categorias = data;
-          isLoadingCategorias = false;
+          categorias = data; // Guarda categorias
+          isLoadingCategorias = false; // Esconde loader
         });
       } else {
         setState(() {
-          isLoadingCategorias = false;
+          isLoadingCategorias = false; // Esconde loader em caso de erro
         });
         // ignore: avoid_print
         print('Erro ao carregar as categorias: ${response.statusCode}');
       }
     } catch (e) {
       setState(() {
-        isLoadingCategorias = false;
+        isLoadingCategorias = false; // Esconde loader em caso de erro
       });
       // ignore: avoid_print
       print('Erro: $e');
@@ -88,8 +92,9 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Estrutura visual da página
     return Scaffold(
-      backgroundColor: const Color(0xFF232323),
+      backgroundColor: const Color(0xFF232323), // Cor de fundo
       body: SafeArea(
         child: Column(
           children: [
@@ -110,7 +115,7 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
                 ),
               ),
             ),
-            // Campo de pesquisa (visual, não funcional)
+            // Campo de pesquisa
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -130,7 +135,7 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
                   ),
                   style: const TextStyle(color: Colors.white),
                   onChanged: (value) {
-                    _searchCategorias(value);
+                    _searchCategorias(value); // Filtra categorias ao digitar
                   },
                 ),
               ),
@@ -139,7 +144,7 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
             // Lista de escalões ou mensagem de erro
             Expanded(
               child: isLoadingCategorias
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator()) // Loader
                   : categorias.isEmpty
                       ? const Center(
                           child: Text(
@@ -159,9 +164,9 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
                             final lista = searchQuery.isEmpty
                                 ? categorias
                                 : filteredCategorias;
-                            final categoria = lista[index]['name'];
+                            final categoria = lista[index]['name']; // Nome do escalão
                             final idCategoriaEtaria =
-                                lista[index]['idAgeCategory'];
+                                lista[index]['idAgeCategory']; // ID do escalão
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -184,6 +189,7 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
                                     ),
                                   ),
                                   onTap: () {
+                                    // Ao clicar, navega para a página de jogos desse escalão
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -209,7 +215,7 @@ class _EscalaoOlheiroPageState extends State<EscalaoOlheiroPage> {
                 icon:
                     const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.popUntil(context, (route) => route.isFirst); // Volta ao início
                 },
               ),
             ),

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../autenticacao/auth_service.dart';
-import '../autenticacao/jwt_decode.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:http/http.dart' as http; // Importa o pacote http para requisições HTTP
+import 'dart:convert'; // Importa para codificação/decodificação JSON
+import '../autenticacao/auth_service.dart'; // Serviço de autenticação
+import '../autenticacao/jwt_decode.dart'; // Utilitário para decodificar JWT
 
+// Página de relatórios submetidos pelo olheiro
 class RelatoriosSubmetidosPage extends StatefulWidget {
   const RelatoriosSubmetidosPage({super.key});
 
@@ -12,35 +13,36 @@ class RelatoriosSubmetidosPage extends StatefulWidget {
       _RelatoriosSubmetidosPageState();
 }
 
+// Estado da página de relatórios submetidos
 class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
-  List<dynamic> relatorios = [];
-  bool isLoading = true;
-  String? userRole;
-  int? userId;
-  String? filtroEstado;
+  List<dynamic> relatorios = []; // Lista de relatórios carregados
+  bool isLoading = true; // Indica se está carregando dados
+  String? userRole; // Papel do utilizador
+  int? userId; // ID do utilizador autenticado
+  String? filtroEstado; // Filtro de estado selecionado
 
   @override
   void initState() {
     super.initState();
-    _loadRelatoriosOlheiro();
+    _loadRelatoriosOlheiro(); // Carrega relatórios ao iniciar
   }
 
   // Função para buscar relatórios submetidos do olheiro logado
   Future<void> _loadRelatoriosOlheiro() async {
-    final authService = AuthService();
-    final token = await authService.getToken();
+    final authService = AuthService(); // Instancia o serviço de autenticação
+    final token = await authService.getToken(); // Obtém o token
 
     if (token == null) {
       if (mounted) {
-        _redirectToLogin();
+        _redirectToLogin(); // Redireciona se não houver token
       }
       return;
     }
 
     try {
       // Extrair informações do token
-      final role = JwtDecoder.getUserRoleFromToken(token);
-      final id = JwtDecoder.getUserIdFromToken(token);
+      final role = JwtDecoder.getUserRoleFromToken(token); // Papel do utilizador
+      final id = JwtDecoder.getUserIdFromToken(token); // ID do utilizador
 
       if (mounted) {
         setState(() {
@@ -68,6 +70,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
         }
       }
     } catch (e) {
+      // Ignora erros
     } finally {
       if (mounted) {
         setState(() {
@@ -88,7 +91,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
     return relatorios.where((r) => r['status'] == filtroEstado).toList();
   }
 
-  // Cores para o estado
+  // Cores para o estado do relatório
   Color _getEstadoColor(String estado) {
     switch (estado) {
       case "Aprovado":
@@ -100,6 +103,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
     }
   }
 
+  // Label para o estado do relatório
   String _getEstadoLabel(String estado) {
     switch (estado) {
       case "Aprovado":
@@ -113,11 +117,12 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Constrói a interface da página
     return Scaffold(
-      backgroundColor: const Color(0xFF262626),
+      backgroundColor: const Color(0xFF262626), // Cor de fundo
       appBar: AppBar(
-        backgroundColor: const Color(0xFF303030),
-        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFF303030), // Cor da AppBar
+        automaticallyImplyLeading: false, // Remove botão de voltar
         elevation: 0,
         centerTitle: true,
         title: const Text(
@@ -137,7 +142,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
-                onPressed: _showFiltroEstadoDialog,
+                onPressed: _showFiltroEstadoDialog, // Abre filtro de estado
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
@@ -162,7 +167,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
           Expanded(
             child: isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white))
+                    child: CircularProgressIndicator(color: Colors.white)) // Loader
                 : filteredRelatorios.isEmpty
                     ? const Center(
                         child: Text(
@@ -173,11 +178,11 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                     : ListView.builder(
                         itemCount: filteredRelatorios.length,
                         itemBuilder: (context, index) {
-                          final relatorio = filteredRelatorios[index];
-                          final String estado = relatorio['status'] ?? "N/A";
+                          final relatorio = filteredRelatorios[index]; // Relatório atual
+                          final String estado = relatorio['status'] ?? "N/A"; // Estado
                           final DateTime? data = relatorio['reportDate'] != null
                               ? DateTime.tryParse(relatorio['reportDate'])
-                              : null;
+                              : null; // Data do relatório
 
                           return Container(
                             margin: const EdgeInsets.symmetric(
@@ -205,6 +210,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        // Título com data
                                         Text(
                                           'Relatório - ${data != null ? "${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}" : "Sem data"}',
                                           style: const TextStyle(
@@ -215,6 +221,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                                           ),
                                         ),
                                         const SizedBox(height: 4),
+                                        // Nome do atleta
                                         Text(
                                           relatorio['athlete']?['name'] ?? 'Sem Nome',
                                           style: const TextStyle(
@@ -225,6 +232,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                                       ],
                                     ),
                                   ),
+                                  // Estado do relatório
                                   Row(
                                     children: [
                                       Text(
@@ -270,6 +278,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
     );
   }
 
+  // Mostra o dialog para filtrar por estado
   void _showFiltroEstadoDialog() {
     showDialog(
       context: context,
@@ -302,6 +311,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // Botão para filtrar por Pendente
                 _FiltroEstadoButton(
                   label: 'Pendente',
                   onTap: () {
@@ -310,6 +320,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                   },
                 ),
                 const SizedBox(height: 8),
+                // Botão para filtrar por Aprovado
                 _FiltroEstadoButton(
                   label: 'Aprovado',
                   onTap: () {
@@ -318,6 +329,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                   },
                 ),
                 const SizedBox(height: 8),
+                // Botão para filtrar por Reprovado
                 _FiltroEstadoButton(
                   label: 'Reprovado',
                   onTap: () {
@@ -326,6 +338,7 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
                   },
                 ),
                 const SizedBox(height: 8),
+                // Botão para limpar filtro
                 _FiltroEstadoButton(
                   label: 'Limpar filtro',
                   onTap: () {
@@ -343,11 +356,11 @@ class _RelatoriosSubmetidosPageState extends State<RelatoriosSubmetidosPage> {
   }
 }
 
-// Botão customizado para o filtro
+// Botão customizado para o filtro de estado
 class _FiltroEstadoButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  final bool isClear;
+  final String label; // Texto do botão
+  final VoidCallback onTap; // Função ao clicar
+  final bool isClear; // Indica se é botão de limpar
 
   const _FiltroEstadoButton({
     required this.label,

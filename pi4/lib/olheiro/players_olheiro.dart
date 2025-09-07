@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../autenticacao/auth_service.dart';
-import 'playerdetailspage_olheiro.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:http/http.dart' as http; // Importa o pacote http para requisições HTTP
+import 'dart:convert'; // Importa para codificação/decodificação JSON
+import '../autenticacao/auth_service.dart'; // Serviço de autenticação
+import 'playerdetailspage_olheiro.dart'; // Página de detalhes do jogador
 
+// Página de lista de jogadores para o olheiro
 class JogadoresOlheiroPage extends StatefulWidget {
   const JogadoresOlheiroPage({super.key});
 
@@ -11,29 +12,31 @@ class JogadoresOlheiroPage extends StatefulWidget {
   State<JogadoresOlheiroPage> createState() => _JogadoresOlheiroPageState();
 }
 
+// Estado da página de jogadores
 class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
-  List<dynamic> atletas = [];
-  List<dynamic> filteredAtletas = [];
-  List<dynamic> posicoes = [];
-  bool isLoading = false;
-  String searchQuery = '';
-  int currentPage = 1;
-  final int itemsPerPage = 5;
+  List<dynamic> atletas = []; // Lista de todos os atletas
+  List<dynamic> filteredAtletas = []; // Lista filtrada de atletas
+  List<dynamic> posicoes = []; // Lista de posições disponíveis
+  bool isLoading = false; // Indica se está carregando dados
+  String searchQuery = ''; // Texto da pesquisa
+  int currentPage = 1; // Página atual da paginação
+  final int itemsPerPage = 5; // Número de itens por página
 
   @override
   void initState() {
     super.initState();
-    _loadAtletas();
-    _loadFilters();
+    _loadAtletas(); // Carrega atletas ao iniciar
+    _loadFilters(); // Carrega filtros (posições)
   }
 
+  // Carrega a lista de atletas da API
   Future<void> _loadAtletas() async {
     setState(() {
-      isLoading = true;
+      isLoading = true; // Mostra loader
     });
 
-    final token = await AuthService().getToken();
-    final config = {'Authorization': 'Bearer $token'};
+    final token = await AuthService().getToken(); // Obtém token do utilizador
+    final config = {'Authorization': 'Bearer $token'}; // Header de autorização
 
     final response = await http.get(
       Uri.parse('https://pi4-3soq.onrender.com/athletes'),
@@ -41,23 +44,24 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(response.body); // Decodifica JSON
       if (mounted) {
         setState(() {
-          atletas = data;
-          filteredAtletas = data;
-          isLoading = false;
+          atletas = data; // Guarda atletas
+          filteredAtletas = data; // Inicializa lista filtrada
+          isLoading = false; // Esconde loader
         });
       }
     } else {
       if (mounted) {
         setState(() {
-          isLoading = false;
+          isLoading = false; // Esconde loader em caso de erro
         });
       }
     }
   }
 
+  // Carrega as posições disponíveis da API
   Future<void> _loadFilters() async {
     final token = await AuthService().getToken();
     final config = {'Authorization': 'Bearer $token'};
@@ -67,11 +71,12 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
     if (posicoesResponse.statusCode == 200) {
       setState(() {
-        posicoes = json.decode(posicoesResponse.body);
+        posicoes = json.decode(posicoesResponse.body); // Guarda posições
       });
     }
   }
 
+  // Filtra atletas pelo texto pesquisado
   void _searchAtletas(String query) {
     setState(() {
       searchQuery = query;
@@ -82,6 +87,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     });
   }
 
+  // Mostra o dialog para filtrar por posição
   void _showFiltroPosicaoDialog() async {
     // Garante que as posições estão carregadas
     if (posicoes.isEmpty) {
@@ -105,7 +111,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                   children: [
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () => Navigator.pop(context), // Fecha o dialog
                       child: const Icon(Icons.close,
                           size: 32, color: Colors.white70),
                     ),
@@ -121,6 +127,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Lista de botões para cada posição
                 ...posicoes.map<Widget>((pos) {
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 6),
@@ -136,7 +143,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                       ),
                       onPressed: () {
                         Navigator.pop(context);
-                        _filtrarPorPosicao(pos['name']);
+                        _filtrarPorPosicao(pos['name']); // Filtra por posição
                       },
                       child: Text(
                         pos['name'],
@@ -150,6 +157,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                   );
                 }),
                 const SizedBox(height: 8),
+                // Botão para limpar filtro
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -183,10 +191,11 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
   }
 
+  // Filtra atletas pela posição selecionada
   void _filtrarPorPosicao(String? nomePosicao) {
     setState(() {
       if (nomePosicao == null) {
-        filteredAtletas = atletas;
+        filteredAtletas = atletas; // Sem filtro
       } else {
         filteredAtletas = atletas.where((a) {
           // Se a posição do atleta for um mapa, pega o nome
@@ -209,7 +218,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     });
   }
 
-
+  // Abre a página de detalhes do atleta
   void _viewDetails(dynamic atleta) {
     Navigator.push(
       context,
@@ -222,26 +231,26 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
   }
 
+  // Função de callback para reportar atleta (exemplo)
   void _reportarAtleta(String id, int rating) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Reportar atleta: $id com avaliação $rating')),
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Paginação
-    final int totalPages = (filteredAtletas.length / itemsPerPage).ceil();
-    final int startIndex = (currentPage - 1) * itemsPerPage;
+    final int totalPages = (filteredAtletas.length / itemsPerPage).ceil(); // Total de páginas
+    final int startIndex = (currentPage - 1) * itemsPerPage; // Índice inicial
     final int endIndex = (startIndex + itemsPerPage) > filteredAtletas.length
         ? filteredAtletas.length
-        : (startIndex + itemsPerPage);
+        : (startIndex + itemsPerPage); // Índice final
     final List<dynamic> atletasPagina =
-        filteredAtletas.sublist(startIndex, endIndex);
+        filteredAtletas.sublist(startIndex, endIndex); // Lista da página atual
 
     return Scaffold(
-      backgroundColor: const Color(0xFF232323),
+      backgroundColor: const Color(0xFF232323), // Cor de fundo
       body: SafeArea(
         child: Column(
           children: [
@@ -267,7 +276,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
               child: Row(
                 children: [
                   ElevatedButton(
-                    onPressed: _showFiltroPosicaoDialog,
+                    onPressed: _showFiltroPosicaoDialog, // Abre filtro de posição
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -306,7 +315,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                               const EdgeInsets.symmetric(vertical: 10),
                         ),
                         onChanged: (value) {
-                          _searchAtletas(value);
+                          _searchAtletas(value); // Pesquisa atletas
                           setState(() {
                             currentPage =
                                 1; // Volta sempre à primeira página ao pesquisar
@@ -321,7 +330,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
             // Lista de jogadores
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator()) // Loader
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemCount: atletasPagina.length,
@@ -363,7 +372,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                               ],
                             ),
                             subtitle: Text(
-                              _getPositionName(atleta['idPosition']),
+                              _getPositionName(atleta['idPosition']), // Mostra posição
                               style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
@@ -371,7 +380,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                             ),
                             trailing: GestureDetector(
                               onTap: () {
-                                _viewDetails(atleta);
+                                _viewDetails(atleta); // Vai para detalhes
                               },
                               child: const Text(
                                 'Ver mais',
@@ -414,7 +423,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '$currentPage / $totalPages',
+                      '$currentPage / $totalPages', // Mostra página atual/total
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -454,6 +463,7 @@ class _JogadoresOlheiroPageState extends State<JogadoresOlheiroPage> {
     );
   }
 
+  // Retorna o nome da posição pelo id
   String _getPositionName(dynamic idPosition) {
     if (idPosition == null) return '';
     final pos = posicoes.firstWhere(

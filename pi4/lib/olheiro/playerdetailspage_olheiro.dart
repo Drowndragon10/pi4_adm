@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
-import 'add_report_page.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:url_launcher/url_launcher.dart'; // Importa para abrir links externos
+import 'dart:io'; // Importa para verificar plataforma (Android/iOS)
+import 'add_report_page.dart'; // Importa a página de criar relatório
 
+// Página de detalhes do atleta para o olheiro
 class PlayerOlheiroDetailsPage extends StatefulWidget {
-  final dynamic atleta;
-  final void Function(String idAthlete, int currentRating) onReportar;
+  final dynamic atleta; // Dados do atleta
+  final void Function(String idAthlete, int currentRating) onReportar; // Callback para reportar
 
   const PlayerOlheiroDetailsPage({
     Key? key,
@@ -17,20 +18,24 @@ class PlayerOlheiroDetailsPage extends StatefulWidget {
   State<PlayerOlheiroDetailsPage> createState() => _PlayerOlheiroDetailsPageState();
 }
 
+// Estado da página de detalhes do atleta
 class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
-  late int rating;
+  late int rating; // Rating do atleta
 
   @override
   void initState() {
     super.initState();
+    // Inicializa o rating a partir dos dados do atleta
     rating = widget.atleta['classificacao'] ?? widget.atleta['rating'] ?? 0;
   }
 
+  // Função para abrir um link externo (URL)
   void _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
 
     try {
       if (Platform.isAndroid) {
+        // Para Android, tenta abrir no Chrome
         final Uri chromeUri = Uri.parse(
             'intent://$url#Intent;scheme=https;package=com.android.chrome;end');
 
@@ -42,6 +47,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
           throw 'Não foi possível abrir o link: $url';
         }
       } else {
+        // Para outras plataformas
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
@@ -49,20 +55,21 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
         }
       }
     } catch (e) {
-      // ignore: avoid_print
+      // Em caso de erro ao abrir o link
       print('Erro ao abrir a URL: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Estrutura visual da página
     return Scaffold(
-      backgroundColor: const Color(0xFF232323),
+      backgroundColor: const Color(0xFF232323), // Cor de fundo
       appBar: AppBar(
-        backgroundColor: const Color(0xFF232323),
+        backgroundColor: const Color(0xFF232323), // Cor da AppBar
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white), // Botão voltar
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
@@ -79,7 +86,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar e nome
+            // Avatar e nome do atleta
             Row(
               children: [
                 const CircleAvatar(
@@ -92,6 +99,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Nome do atleta
                       Text(
                         widget.atleta['name'] ?? '',
                         style: const TextStyle(
@@ -100,12 +108,13 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
                           fontSize: 24,
                         ),
                       ),
+                      // Data de nascimento
                       Text(
                         widget.atleta['birthdate'] ?? '',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 8),
-                      // Rating
+                      // Label do rating
                       const Text(
                         'Rating:',
                         style: TextStyle(
@@ -113,6 +122,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      // Estrelas do rating
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(5, (index) {
@@ -130,15 +140,21 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
+            // Linha de detalhe: posição
             _buildDetailRow(
                 'Posição:', widget.atleta['position']?['name'] ?? "N/A"),
+            // Linha de detalhe: clube
             _buildDetailRow('Clube:', widget.atleta['team']?['name'] ?? "N/A"),
+            // Linha de detalhe: nacionalidade
             _buildDetailRow(
                 'Nacionalidade:', widget.atleta['nationality'] ?? "N/A"),
+            // Linha de detalhe: naturalidade
             _buildDetailRow(
                 'Naturalidade:', widget.atleta['birthplace'] ?? "N/A"),
+            // Linha de detalhe: encarregado
             _buildDetailRow(
                 'Encarregado:', widget.atleta['guardian']?['name'] ?? "N/A"),
+            // Linha de detalhe: link
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -173,7 +189,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
-            // Botão Avaliar
+            // Botão para criar relatório
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -210,6 +226,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
           ],
         ),
       ),
+      // Barra inferior fixa com botão Home
       bottomNavigationBar: Container(
         color: const Color(0xFF2C2C2C),
         child: IconButton(
@@ -222,6 +239,7 @@ class _PlayerOlheiroDetailsPageState extends State<PlayerOlheiroDetailsPage> {
     );
   }
 
+  // Widget auxiliar para mostrar uma linha de detalhe (label + valor)
   Widget _buildDetailRow(String label, String value) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),

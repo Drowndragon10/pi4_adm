@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../autenticacao/auth_service.dart';
-import '../autenticacao/jwt_decode.dart';
+import 'package:flutter/material.dart'; // Importa o pacote Flutter para UI
+import 'package:http/http.dart' as http; // Importa o pacote http para requisições
+import 'dart:convert'; // Importa para codificação/decodificação JSON
+import '../autenticacao/auth_service.dart'; // Serviço de autenticação
+import '../autenticacao/jwt_decode.dart'; // Utilitário para decodificar JWT
 
+// Página para criar um novo relatório para um atleta
 class CriarRelatorioPage extends StatefulWidget {
-  final int idAthlete;
+  final int idAthlete; // ID do atleta para o qual o relatório será criado
 
   const CriarRelatorioPage({super.key, required this.idAthlete});
 
@@ -13,22 +14,26 @@ class CriarRelatorioPage extends StatefulWidget {
   CriarRelatorioPageState createState() => CriarRelatorioPageState();
 }
 
+// Estado da página de criação de relatório
 class CriarRelatorioPageState extends State<CriarRelatorioPage> {
-  final String apiUrl = 'https://pi4-3soq.onrender.com';
-  bool isLoading = false;
+  final String apiUrl = 'https://pi4-3soq.onrender.com'; // URL base da API
+  bool isLoading = false; // Indica se está carregando (para mostrar o loader)
 
+  // Dados do formulário, com valores iniciais
   final Map<String, dynamic> formData = {
-    'technique': 1,
-    'speed': 1,
-    'competitiveAttitude': 1,
-    'intelligence': 1,
-    'height': 'Baixo',
-    'morphology': 'Ectomorfo',
-    'finalRating': 1,
-    'freeText': '',
+    'technique': 1, // Técnica do atleta
+    'speed': 1, // Velocidade do atleta
+    'competitiveAttitude': 1, // Atitude competitiva
+    'intelligence': 1, // Inteligência
+    'height': 'Baixo', // Altura
+    'morphology': 'Ectomorfo', // Morfologia
+    'finalRating': 1, // Avaliação final
+    'freeText': '', // Texto livre
   };
 
+  // Função para submeter o relatório
   Future<void> submitReport() async {
+    // Mostra um diálogo de confirmação antes de submeter
     final shouldSubmit = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -58,7 +63,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
+                    onPressed: () => Navigator.of(context).pop(true), // Confirma
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFD700),
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -80,7 +85,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => Navigator.of(context).pop(false), // Cancela
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD9D9D9),
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -107,19 +112,19 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
     );
 
     if (shouldSubmit != true) {
-      return; // Cancelar submissão se o usuário selecionar "Cancelar"
+      return; // Cancela submissão se o usuário selecionar "Não"
     }
 
     setState(() {
-      isLoading = true;
+      isLoading = true; // Mostra o indicador de carregamento
     });
 
-    final token = await AuthService().getToken();
+    final token = await AuthService().getToken(); // Busca o token do usuário
     if (token == null) {
       setState(() {
         isLoading = false;
       });
-      // ignore: use_build_context_synchronously
+      // Mostra mensagem de erro se não encontrar o token
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erro: Token não encontrado. Faça login novamente.'),
@@ -130,23 +135,24 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
     }
 
     try {
-      final idUtilizador = JwtDecoder.getUserIdFromToken(token);
+      final idUtilizador = JwtDecoder.getUserIdFromToken(token); // Extrai o ID do utilizador do token
       final Map<String, dynamic> dataToSend = {
-        ...formData,
-        'idUser': idUtilizador,
+        ...formData, // Copia os dados do formulário
+        'idUser': idUtilizador, // Adiciona o ID do utilizador aos dados
       };
 
+      // Faz o POST para criar o relatório
       final response = await http.post(
-        Uri.parse('$apiUrl/reports/${widget.idAthlete}'),
+        Uri.parse('$apiUrl/reports/${widget.idAthlete}'), // Endpoint da API
         headers: {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token', // Token JWT no header
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(dataToSend),
+        body: jsonEncode(dataToSend), // Dados em JSON
       );
 
       if (response.statusCode == 201) {
-        // ignore: use_build_context_synchronously
+        // Mostra mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Relatorio criado com sucesso!'),
@@ -155,12 +161,11 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             duration: const Duration(seconds: 3),
           ),
         );
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
+        Navigator.pop(context); // Volta para a tela anterior
       } else {
+        // Mostra mensagem de erro retornada pela API
         final Map<String, dynamic> errorResponse = jsonDecode(response.body);
         final errorMessage = errorResponse['error'] ?? 'Erro desconhecido.';
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao submeter relatório: $errorMessage'),
@@ -169,7 +174,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
         );
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
+      // Mostra mensagem de erro inesperado
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro inesperado: $e'),
@@ -178,17 +183,19 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
       );
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Esconde o indicador de carregamento
       });
     }
   }
 
+  // Incrementa o valor de um campo (até o máximo de 4)
   void incrementField(String field) {
     setState(() {
       if (formData[field] < 4) formData[field] += 1;
     });
   }
 
+  // Decrementa o valor de um campo (até o mínimo de 1)
   void decrementField(String field) {
     setState(() {
       if (formData[field] > 1) {
@@ -199,17 +206,16 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
 
   @override
   Widget build(BuildContext context) {
-    
-
+    // Monta a interface da página
     return Scaffold(
-      backgroundColor: const Color(0xFF262626),
+      backgroundColor: const Color(0xFF262626), // Cor de fundo
       appBar: AppBar(
-        backgroundColor: const Color(0xFF303030),
+        backgroundColor: const Color(0xFF303030), // Cor da AppBar
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(), // Volta para a tela anterior
         ),
         title: const Text(
           'Criar relatório',
@@ -226,6 +232,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 90),
             child: Column(
               children: [
+                // Campos do formulário (dropdowns e texto)
                 _buildDropdownField(
                     'Técnica', 'technique', ['1', '2', '3', '4']),
                 const SizedBox(height: 12),
@@ -249,6 +256,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                 // Rating final
                 _buildDropdownField('Rating final', 'finalRating', ['1', '2', '3', '4']),
                 const SizedBox(height: 18),
+                // Botão para submeter o relatório
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -280,6 +288,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             ),
           ),
           if (isLoading)
+            // Mostra indicador de carregamento enquanto submete
             const Center(
               child: CircularProgressIndicator(color: Colors.white),
             ),
@@ -294,7 +303,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
                 icon:
                     const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context); // Volta para a tela anterior
                 },
               ),
             ),
@@ -304,16 +313,15 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
     );
   }
 
-// Calcula a média dos 4 campos principais (1 a 4)
-
 // --- NOVOS WIDGETS DE ESTILO ---
 
+  // Widget para criar um campo dropdown estilizado
   Widget _buildDropdownField(String label, String field, List<String> options) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label, // Nome do campo
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -327,7 +335,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: DropdownButtonFormField<String>(
-            value: formData[field]?.toString(),
+            value: formData[field]?.toString(), // Valor selecionado
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding:
@@ -339,7 +347,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
             onChanged: (value) {
               setState(() {
-                formData[field] = value!;
+                formData[field] = value!; // Atualiza o valor selecionado
               });
             },
             items: options.map((option) {
@@ -354,12 +362,13 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
     );
   }
 
+  // Widget para criar um campo de texto estilizado
   Widget _buildTextField(String label, String field) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          label, // Nome do campo
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -383,7 +392,7 @@ class CriarRelatorioPageState extends State<CriarRelatorioPage> {
             style: const TextStyle(color: Colors.black),
             onChanged: (value) {
               setState(() {
-                formData[field] = value;
+                formData[field] = value; // Atualiza o valor do campo de texto
               });
             },
           ),
