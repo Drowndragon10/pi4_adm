@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart';
-import 'selecao_escalao_page_treinador.dart';
-import '../definicoes.dart';
-import 'players_treinador.dart';
-import 'equipas_page.dart';
+import 'package:flutter/material.dart'; //interface visual
+import 'selecao_escalao_page_treinador.dart'; //página dos escalões/jogos
+import '../definicoes.dart'; //página das definições
+import 'players_treinador.dart'; //página dos jogadores
+import 'equipas_page.dart'; //página das equipas
 
 
 
-class Treinador extends StatelessWidget {
+class Treinador extends StatelessWidget { //não guarda estados, só mostra botões
   const Treinador({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Grupos de opções
-    final List<_MenuOption> mainOptions = [
+    final List<_MenuOption> mainOptions = [ //guarda principais opções do menu
       _MenuOption(
         'Jogadores',
         Icons.sports_soccer,
@@ -37,7 +37,7 @@ class Treinador extends StatelessWidget {
       }),
     ];
     
-    final _MenuOption settingsOption =
+    final _MenuOption settingsOption = 
         _MenuOption('Definições', Icons.settings, () {
           Navigator.push(
             context,
@@ -45,7 +45,7 @@ class Treinador extends StatelessWidget {
           );
         });
 
-    Widget buildButton(_MenuOption option) {
+    Widget buildButton(_MenuOption option) { //Cria um botão por cima
       return Material(
         color: const Color(0xFF2C2C2C),
         borderRadius: BorderRadius.circular(12),
