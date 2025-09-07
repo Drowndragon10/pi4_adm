@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 
+// Página de detalhes do atleta
 class PlayerDetailsPage extends StatefulWidget {
-  final dynamic atleta;
-  final void Function(String idAtleta, int currentRating) onAvaliar;
+  final dynamic atleta; // Dados do atleta
+  final void Function(String idAtleta, int currentRating) onAvaliar; // Função para avaliar atleta
 
   // ignore: use_super_parameters
   const PlayerDetailsPage({
@@ -18,15 +19,16 @@ class PlayerDetailsPage extends StatefulWidget {
 }
 
 class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
-  late int rating;
+  late int rating; // Rating atual do atleta
 
   @override
   void initState() {
     super.initState();
+    // Inicializa o rating a partir dos dados do atleta
     rating = widget.atleta['classificacao'] ?? widget.atleta['rating'] ?? 0;
   }
 
-
+  // Função para abrir links externos (ex: perfil do atleta)
   void _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
 
@@ -80,7 +82,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar e nome
+            // Avatar e nome do atleta
             Row(
               children: [
                 const CircleAvatar(
@@ -93,6 +95,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Nome do atleta
                       Text(
                         widget.atleta['name'] ?? '',
                         style: const TextStyle(
@@ -101,12 +104,13 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                           fontSize: 24,
                         ),
                       ),
+                      // Data de nascimento
                       Text(
                         widget.atleta['birthdate'] ?? '',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 8),
-                      // Rating
+                      // Rating label
                       const Text(
                         'Rating:',
                         style: TextStyle(
@@ -114,6 +118,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      // Estrelas do rating
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(5, (index) {
@@ -131,6 +136,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
+            // Detalhes do atleta
             _buildDetailRow('Posição:', widget.atleta['position']?['name'] ?? "N/A"),
             _buildDetailRow('Clube:', widget.atleta['team']?['name'] ?? "N/A"),
             _buildDetailRow(
@@ -138,6 +144,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
             _buildDetailRow(
                 'Naturalidade:', widget.atleta['birthplace'] ?? "N/A"),
             _buildDetailRow('Encarregado:', widget.atleta['guardian']?['name'] ?? "N/A"),
+            // Link externo do atleta
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -171,7 +178,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
               ],
             ),
             const SizedBox(height: 24),
-            // Botão Avaliar
+            // Botão para avaliar o atleta
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -207,6 +214,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
           ],
         ),
       ),
+      // Barra inferior com botão para voltar à página inicial
       bottomNavigationBar: Container(
         color: const Color(0xFF2C2C2C),
         child: IconButton(
@@ -219,6 +227,7 @@ class _PlayerDetailsPageState extends State<PlayerDetailsPage> {
     );
   }
 
+  // Função auxiliar para construir linhas de detalhe do atleta
   Widget _buildDetailRow(String label, String value) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),

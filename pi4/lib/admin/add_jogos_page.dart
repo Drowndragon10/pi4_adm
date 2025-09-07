@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../autenticacao/auth_service.dart';
 
+// Página para adicionar um novo jogo
 class AddJogoPage extends StatefulWidget {
   const AddJogoPage({super.key});
 
@@ -12,19 +13,24 @@ class AddJogoPage extends StatefulWidget {
 }
 
 class _AddJogoPageState extends State<AddJogoPage> {
+  // Lista de equipas disponíveis
   List<dynamic> equipas = [];
+  // Equipa selecionada para casa e visitante
   String? selectedEquipaCasa;
   String? selectedEquipaVisitante;
+  // Localização do jogo
   String concelho = '';
   String distrito = '';
+  // Data do jogo
   DateTime? dataJogo;
 
+  // Estado de carregamento
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchEquipas();
+    _fetchEquipas(); // Carrega as equipas ao iniciar a página
   }
 
   // Função para buscar equipas do backend
@@ -48,6 +54,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
 
   // Função para criar um novo jogo
   Future<void> _createJogo() async {
+    // Validação: não pode ser a mesma equipa
     if (selectedEquipaCasa == selectedEquipaVisitante) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -84,6 +91,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
       return;
     }
 
+    // Confirmação do utilizador antes de criar o jogo
     final shouldCreate = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -171,6 +179,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
       isLoading = true;
     });
 
+    // Monta o corpo do pedido para criar o jogo
     final jogoPayload = {
       'county': concelho,
       'district': distrito,
@@ -199,6 +208,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
       isLoading = false;
     });
 
+    // Mostra mensagem de sucesso ou erro
     if (response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -218,11 +228,12 @@ class _AddJogoPageState extends State<AddJogoPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Interface da página
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF303030),
         elevation: 0,
-        centerTitle: true, // <-- centra o título
+        centerTitle: true, // centra o título
         automaticallyImplyLeading: false,
         title: const Text(
           "Adicionar Jogo",
@@ -231,7 +242,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
       ),
       backgroundColor: const Color(0xFF1E1E1E),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator()) // Mostra loading
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -239,6 +250,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Campo para selecionar data do jogo
                     TextField(
                       decoration: const InputDecoration(
                         hintText: 'dd/mm/aaaa --:--',
@@ -276,6 +288,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
+                    // Campo para concelho
                     TextField(
                       decoration: const InputDecoration(
                         hintText: 'Concelho',
@@ -291,6 +304,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       onChanged: (value) => concelho = value,
                     ),
                     const SizedBox(height: 10),
+                    // Campo para distrito
                     TextField(
                       decoration: const InputDecoration(
                         hintText: 'Distrito',
@@ -306,6 +320,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       onChanged: (value) => distrito = value,
                     ),
                     const SizedBox(height: 10),
+                    // Dropdown para equipa da casa
                     DropdownButtonFormField<String>(
                       value: selectedEquipaCasa,
                       decoration: const InputDecoration(
@@ -334,7 +349,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                             equipa['name'],
                             style: const TextStyle(
                                 color: Colors
-                                    .white), // texto preto no menu suspenso
+                                    .white), // texto branco no menu suspenso
                           ),
                         );
                       }).toList(),
@@ -345,6 +360,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       },
                     ),
                     const SizedBox(height: 10),
+                    // Dropdown para equipa visitante
                     DropdownButtonFormField<String>(
                       value: selectedEquipaVisitante,
                       decoration: const InputDecoration(
@@ -358,11 +374,11 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       hint: const Text(
                         'Selecione a Equipa Visitante',
                         style: TextStyle(
-                            color: Colors.black), // <-- placeholder preto
+                            color: Colors.black), // placeholder preto
                       ),
                       dropdownColor: const Color(0xFF2C2C2C),
                       style: const TextStyle(
-                          color: Colors.black), // <-- valor selecionado preto
+                          color: Colors.black), // valor selecionado preto
                       iconEnabledColor: Colors.black,
                       iconDisabledColor: Colors.black,
                       items: equipas.map((equipa) {
@@ -371,7 +387,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                           child: Text(
                             equipa['name'],
                             style: const TextStyle(
-                                color: Colors.white), // <-- opções brancas
+                                color: Colors.white), // opções brancas
                           ),
                         );
                       }).toList(),
@@ -382,6 +398,7 @@ class _AddJogoPageState extends State<AddJogoPage> {
                       },
                     ),
                     const SizedBox(height: 20),
+                    // Botão para criar o jogo
                     ElevatedButton(
                       onPressed: _createJogo,
                       style: ElevatedButton.styleFrom(
@@ -405,13 +422,14 @@ class _AddJogoPageState extends State<AddJogoPage> {
                 ),
               ),
             ),
+      // Barra inferior com botão para voltar à página anterior
       bottomNavigationBar: Container(
         width: double.infinity,
         color: const Color(0xFF2C2C2C),
         child: IconButton(
           icon: const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
           onPressed: () {
-            Navigator.pop(context); // Ou navega para DashboardPage
+            Navigator.pop(context); // Volta para a página anterior
           },
         ),
       ),

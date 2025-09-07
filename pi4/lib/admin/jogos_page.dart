@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 import '../autenticacao/auth_service.dart';
 import '../autenticacao/jwt_decode.dart';
 
+// Página que mostra os jogos de uma categoria de idade
 class JogosPage extends StatefulWidget {
-  final int idAgeCategory;
-  final String categoriaNome;
+  final int idAgeCategory; // ID do escalão
+  final String categoriaNome; // Nome do escalão
 
   const JogosPage({
     super.key,
@@ -20,16 +21,17 @@ class JogosPage extends StatefulWidget {
 }
 
 class _JogosPageState extends State<JogosPage> {
-  List<dynamic> jogos = [];
-  bool isLoadingJogos = true;
-  String? userRole;
+  List<dynamic> jogos = []; // Lista de jogos carregados
+  bool isLoadingJogos = true; // Estado de carregamento
+  String? userRole; // Role do utilizador (Admin, User, etc.)
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData(); // Carrega dados do utilizador e jogos ao iniciar
   }
 
+  // Carrega o token e obtém a role do utilizador
   Future<void> _loadUserData() async {
     try {
       final token = await AuthService().getToken();
@@ -42,11 +44,12 @@ class _JogosPageState extends State<JogosPage> {
       setState(() {
         userRole = role;
       });
-      _loadJogos();
+      _loadJogos(); // Carrega os jogos após obter a role
       // ignore: empty_catches
     } catch (e) {}
   }
 
+  // Carrega os jogos do backend para o escalão selecionado
   Future<void> _loadJogos() async {
     final token = await AuthService().getToken();
     final config = {'Authorization': 'Bearer $token'};
@@ -90,6 +93,7 @@ class _JogosPageState extends State<JogosPage> {
     }
   }
 
+  // Elimina um jogo do backend (apenas para admin)
   Future<void> _deleteJogo(int idMatch) async {
     final token = await AuthService().getToken();
     final config = {'Authorization': 'Bearer $token'};
@@ -121,6 +125,7 @@ class _JogosPageState extends State<JogosPage> {
     }
   }
 
+  // Mostra detalhes do jogo num popup
   void _showGameDetails(dynamic jogo) {
     final equipaCasa = jogo['teams'].firstWhere(
       (e) => e['role'] == 'casa',
@@ -240,6 +245,7 @@ class _JogosPageState extends State<JogosPage> {
                           ),
                         ),
                         onPressed: () async {
+                          // Confirmação antes de eliminar
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (BuildContext context) {
@@ -304,6 +310,7 @@ class _JogosPageState extends State<JogosPage> {
         child: Column(
           children: [
             const SizedBox(height: 16),
+            // Título da página
             Container(
               color: const Color(0xFF303030),
               child: Padding(
@@ -335,6 +342,7 @@ class _JogosPageState extends State<JogosPage> {
                             itemCount: jogos.length,
                             itemBuilder: (context, index) {
                               final jogo = jogos[index];
+                              // Obtém nome das equipas
                               final equipaCasa =
                                   (jogo['teams'] as List).firstWhere(
                                 (e) => e['role'] == 'casa',
@@ -383,6 +391,7 @@ class _JogosPageState extends State<JogosPage> {
                             },
                           )),
 
+            // Barra inferior com botão para voltar à página anterior
             Container(
               width: double.infinity,
               color: const Color(0xFF2C2C2C),

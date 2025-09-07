@@ -11,6 +11,7 @@ class AddAtletaPage extends StatefulWidget {
 }
 
 class AddAtletaPageState extends State<AddAtletaPage> {
+  // Controladores para os campos de texto (guardar e ler o input do utilizador)
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController dataNascimentoController =
       TextEditingController();
@@ -18,12 +19,16 @@ class AddAtletaPageState extends State<AddAtletaPage> {
   final TextEditingController naturalidadeController = TextEditingController();
   final TextEditingController linkController = TextEditingController();
 
+// Variáveis que guardam as escolhas feitas nos dropdowns
   String? selectedPosicao;
   String? selectedEncarregado;
   String? selectedEquipa;
+
+  // Estado para indicar se está a carregar/submeter e para mensagens de erro
   bool isLoading = false;
   String mensagem = '';
 
+// Listas para dropdowns
   List<dynamic> posicoes = [];
   List<dynamic> equipas = [];
   List<dynamic> encarregados = [];
@@ -31,14 +36,15 @@ class AddAtletaPageState extends State<AddAtletaPage> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadData(); // Ao iniciar a página, carrega as listas (posições, equipas, encarregados)
   }
 
-  // Função para carregar os dados das posições, equipas e encarregados
+  // Vai buscar os dados
   Future<void> _loadData() async {
     try {
       final token = await AuthService().getToken();
 
+      // Faz pedidos GET para obter listas
       final responsePosicoes = await http.get(
         Uri.parse('https://pi4-3soq.onrender.com/positions'),
         headers: {'Authorization': 'Bearer $token'},
@@ -55,25 +61,27 @@ class AddAtletaPageState extends State<AddAtletaPage> {
       if (!mounted) return; // Verifica se o widget está montado
 
       if (responsePosicoes.statusCode == 200) {
+        // Se correu bem, guarda a lista de posições
         setState(() {
           posicoes = json.decode(responsePosicoes.body);
         });
       } else {}
 
       if (responseEquipas.statusCode == 200) {
+        // Se correu bem, guarda a lista de equipas
         setState(() {
           equipas = json.decode(responseEquipas.body);
         });
       } else {}
 
-  
-
       if (responseEncarregados.statusCode == 200) {
+        // Aqui faz print a lista de encarregados
         final data = json.decode(responseEncarregados.body);
         print(
             'Erro ao buscar encarregados: ${responseEncarregados.statusCode}');
       }
     } catch (e) {
+      // Em caso de erro, atualiza a mensagem
       if (!mounted) return;
       setState(() {
         mensagem = 'Erro ao carregar os dados.';
@@ -90,11 +98,13 @@ class AddAtletaPageState extends State<AddAtletaPage> {
       });
     }
 
+    // Verifica se os campos obrigatórios estão preenchidos
     if (nomeController.text.isEmpty ||
         dataNascimentoController.text.isEmpty ||
         nacionalidadeController.text.isEmpty ||
         naturalidadeController.text.isEmpty) {
       if (mounted) {
+        // Se faltar algo, mostra mensagem ao utilizador
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content:
@@ -107,6 +117,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
       }
       return;
     }
+    // Pergunta ao utilizador se tem a certeza antes de enviar
     final confirm = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -192,6 +203,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
         });
       }
 
+      // Cria o mapa com os dados do atleta para enviar no corpo do pedido
       final atleta = {
         'name': nomeController.text,
         'birthDate': dataNascimentoController.text,
@@ -210,6 +222,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
 
       try {
         final token = await AuthService().getToken();
+        // Faz o pedido POST com os dados do atleta
         final response = await http.post(
           Uri.parse('https://pi4-3soq.onrender.com/athletes'),
           headers: {
@@ -224,6 +237,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
 
         if (!mounted) return;
 
+        // Se correu bem, mostra mensagem de sucesso
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -234,12 +248,14 @@ class AddAtletaPageState extends State<AddAtletaPage> {
             ),
           );
         } else {
+          // Se falhou, mostra mensagem de erro com o que o servidor respondeu
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Erro ao adicionar Jogador: ${response.body}')),
           );
         }
       } catch (e) {
+        // Em caso de erro na comunicação, mostra mensagem genérica
         print('DEBUG exception: $e'); // <-- Mostra exceção
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao conectar ao servidor')),
@@ -256,6 +272,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Constrói a interface
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF303030),
@@ -284,6 +301,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // Campos de input
                             _buildTextField('Nome', nomeController),
                             const SizedBox(height: 10),
                             GestureDetector(
@@ -454,6 +472,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
                             const SizedBox(height: 10),
                             _buildTextField('Link (opcional)', linkController),
                             const SizedBox(height: 30),
+                            // Botão de adicionar
                             ElevatedButton(
                               onPressed: isLoading ? null : _addAtleta,
                               style: ElevatedButton.styleFrom(
@@ -503,6 +522,7 @@ class AddAtletaPageState extends State<AddAtletaPage> {
     );
   }
 
+  // Função para construir os campos de texto
   Widget _buildTextField(String hint, TextEditingController controller,
       {bool enabled = true}) {
     return TextField(

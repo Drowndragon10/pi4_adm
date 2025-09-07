@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../autenticacao/auth_service.dart';
-
 import 'playerdetailspage.dart';
 
+// Página que mostra a lista de jogadores
 class JogadoresPage extends StatefulWidget {
   const JogadoresPage({super.key});
 
@@ -13,21 +13,22 @@ class JogadoresPage extends StatefulWidget {
 }
 
 class _JogadoresPageState extends State<JogadoresPage> {
-  List<dynamic> atletas = [];
-  List<dynamic> filteredAtletas = [];
-  List<dynamic> posicoes = [];
-  bool isLoading = false;
-  String searchQuery = '';
-  int currentPage = 1;
-  final int itemsPerPage = 5;
+  List<dynamic> atletas = []; // Lista completa de atletas
+  List<dynamic> filteredAtletas = []; // Lista filtrada para pesquisa/filtros
+  List<dynamic> posicoes = []; // Lista de posições disponíveis
+  bool isLoading = false; // Estado de carregamento
+  String searchQuery = ''; // Texto de pesquisa
+  int currentPage = 1; // Página atual da paginação
+  final int itemsPerPage = 5; // Quantidade de atletas por página
 
   @override
   void initState() {
     super.initState();
-    _loadAtletas();
-    _loadFilters();
+    _loadAtletas(); // Carrega atletas ao iniciar
+    _loadFilters(); // Carrega posições ao iniciar
   }
 
+  // Busca atletas do backend
   Future<void> _loadAtletas() async {
     setState(() {
       isLoading = true;
@@ -59,6 +60,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     }
   }
 
+  // Busca posições do backend
   Future<void> _loadFilters() async {
     final token = await AuthService().getToken();
     final config = {'Authorization': 'Bearer $token'};
@@ -73,6 +75,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     }
   }
 
+  // Filtra atletas pelo texto de pesquisa
   void _searchAtletas(String query) {
     setState(() {
       searchQuery = query;
@@ -83,6 +86,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     });
   }
 
+  // Mostra popup para filtrar por posição
   void _showFiltroPosicaoDialog() async {
     // Garante que as posições estão carregadas
     if (posicoes.isEmpty) {
@@ -122,6 +126,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Lista de botões para cada posição
                 ...posicoes.map<Widget>((pos) {
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 6),
@@ -151,6 +156,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                   );
                 }),
                 const SizedBox(height: 8),
+                // Botão para limpar filtro
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -184,6 +190,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     );
   }
 
+  // Filtra atletas pela posição selecionada
   void _filtrarPorPosicao(String? nomePosicao) {
     setState(() {
       if (nomePosicao == null) {
@@ -210,6 +217,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     });
   }
 
+  // Mostra popup para avaliar atleta
   void _avaliarAtleta(String idAthlete, int currentRating) {
     if (idAthlete == 'null' || idAthlete.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -254,6 +262,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
+                  // Estrelas para selecionar rating
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(5, (index) {
@@ -381,6 +390,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     );
   }
 
+  // Navega para página de detalhes do atleta
   void _viewDetails(dynamic atleta) {
     Navigator.push(
       context,
@@ -392,7 +402,6 @@ class _JogadoresPageState extends State<JogadoresPage> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -617,6 +626,7 @@ class _JogadoresPageState extends State<JogadoresPage> {
     );
   }
 
+  // Busca o nome da posição pelo id
   String _getPositionName(dynamic idPosition) {
     if (idPosition == null) return '';
     final pos = posicoes.firstWhere(

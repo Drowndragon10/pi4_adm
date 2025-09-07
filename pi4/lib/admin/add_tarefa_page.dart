@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../autenticacao/auth_service.dart';
 
+// Página para atribuir uma nova tarefa a um olheiro
 class AddTarefaPage extends StatefulWidget {
   const AddTarefaPage({super.key});
 
@@ -11,24 +12,29 @@ class AddTarefaPage extends StatefulWidget {
 }
 
 class _AddTarefaPageState extends State<AddTarefaPage> {
+  // Listas para dropdowns
   List<dynamic> jogos = [];
   List<dynamic> atletas = [];
   List<dynamic> utilizadores = [];
 
+  // Valores selecionados nos dropdowns
   String? selectedJogo;
   String? selectedAtleta;
   String? selectedUtilizador;
+  // Campos de texto
   String titulo = '';
   String descricao = '';
 
+  // Estado de carregamento
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    _fetchData(); // Carrega dados ao iniciar a página
   }
 
+  // Busca jogos, atletas e olheiros do backend
   Future<void> _fetchData() async {
     try {
       final token = await AuthService().getToken();
@@ -44,18 +50,15 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
             headers: config),
       ]);
 
+      // Se todas as respostas forem OK, atualiza as listas
       if (responses.every((res) => res.statusCode == 200)) {
         final jogosData = json.decode(responses[0].body);
         final atletasData = json.decode(responses[1].body);
         final utilizadoresData = json.decode(responses[2].body);
 
-        print('Jogos: $jogosData');
-
-        // Filtra apenas os olheiros
+        // Filtra apenas os olheiros (idUserType == 3)
         final olheiros =
             utilizadoresData.where((user) => user['idUserType'] == 3).toList();
-
-            print('Olheiros: $olheiros');
 
         setState(() {
           jogos = jogosData;
@@ -70,7 +73,9 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
     }
   }
 
+  // Cria a tarefa no backend
   Future<void> _createTarefa() async {
+    // Validação dos campos obrigatórios
     if (selectedJogo == null ||
         selectedAtleta == null ||
         selectedUtilizador == null) {
@@ -105,6 +110,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // Botão de confirmação
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
@@ -127,6 +133,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                     ),
                   ),
                 ),
+                // Botão de cancelar
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
@@ -172,6 +179,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
       'Content-Type': 'application/json',
     };
 
+    // Corpo do pedido para criar tarefa
     final body = json.encode({
       'idMatch': selectedJogo,
       'idAthlete': selectedAtleta,
@@ -187,6 +195,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
         body: body,
       );
 
+      // Mostra mensagem de sucesso ou erro
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -208,6 +217,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
     }
   }
 
+  // Mostra erro no SnackBar
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -220,7 +230,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
         appBar: AppBar(
           backgroundColor: const Color(0xFF303030),
           elevation: 0,
-          centerTitle: true, // <-- centra o título
+          centerTitle: true, // centra o título
           automaticallyImplyLeading: false,
           title: const Text(
             "Atribuir Tarefa",
@@ -243,6 +253,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // Dropdown para selecionar o jogo
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 labelText: 'Selecione um Jogo',
@@ -263,6 +274,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               style: const TextStyle(color: Colors.white),
                               value: selectedJogo,
                               items: jogos.map((jogo) {
+                                // Mostra nome das equipas no dropdown
                                 final teams = jogo['teams'] ?? [];
                                 final equipaCasa = teams.firstWhere(
                                   (e) => e['role'] == 'casa',
@@ -296,6 +308,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               },
                             ),
                             const SizedBox(height: 16),
+                            // Dropdown para selecionar atleta
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 labelText: 'Selecione um Atleta',
@@ -328,6 +341,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               },
                             ),
                             const SizedBox(height: 16),
+                            // Dropdown para selecionar olheiro
                             DropdownButtonFormField<String>(
                               decoration: InputDecoration(
                                 labelText: 'Selecione um Utilizador',
@@ -360,6 +374,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               },
                             ),
                             const SizedBox(height: 16),
+                            // Campo de texto para título da tarefa
                             TextField(
                               style: const TextStyle(color: Colors.black),
                               decoration: InputDecoration(
@@ -369,7 +384,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                                 floatingLabelBehavior: FloatingLabelBehavior
                                     .never, // Não flutuar o texto
                                 filled: true,
-                                fillColor: Color(0xFFE6E6E6), // Fundo escuro
+                                fillColor: Color(0xFFE6E6E6), // Fundo claro
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide.none,
@@ -382,6 +397,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                               },
                             ),
                             const SizedBox(height: 16),
+                            // Campo de texto para descrição da tarefa
                             TextField(
                               style: const TextStyle(color: Colors.black),
                               decoration: InputDecoration(
@@ -391,7 +407,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                                 floatingLabelBehavior: FloatingLabelBehavior
                                     .never, // Não flutuar o texto
                                 filled: true,
-                                fillColor: Color(0xFFE6E6E6), // Fundo escuro
+                                fillColor: Color(0xFFE6E6E6), // Fundo claro
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: BorderSide.none,
@@ -408,6 +424,7 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
                             const SizedBox(
                                 height:
                                     30), // Garante que o botão fique no final
+                            // Botão para criar a tarefa
                             ElevatedButton(
                               onPressed: _createTarefa,
                               style: ElevatedButton.styleFrom(
@@ -437,13 +454,14 @@ class _AddTarefaPageState extends State<AddTarefaPage> {
               },
             ),
           ),
+          // Barra inferior com botão para voltar à página anterior
           Container(
             width: double.infinity,
             color: const Color(0xFF303030),
             child: IconButton(
               icon: const Icon(Icons.home, color: Color(0xFFFFD700), size: 36),
               onPressed: () {
-                Navigator.pop(context); // Ou navega para DashboardPage
+                Navigator.pop(context); // Volta para a página anterior
               },
             ),
           ),
